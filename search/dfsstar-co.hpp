@@ -12,7 +12,6 @@ public:
 	typedef typename D::State State;
 	typedef typename D::Cost Cost;
 	typedef typename D::Oper Oper;
-	typedef typename std::pair<Cost, typename D::Oper> Action;
 
 	DFSstarCO(int argc, const char *argv[]) :
 		SearchAlgorithm<D>(argc, argv) { }
@@ -38,6 +37,25 @@ public:
 	}
 
 private:
+
+	struct Action {
+		Cost f;
+		Cost g;
+		Oper op;
+		Oper revop;
+		State state;
+		Action(Cost f, Cost g, Oper op, Oper revop, State s) : f(f), g(g),
+															   op(op),
+															   revop(revop),
+															   state(s) {}
+		bool operator<(const Action &o) const {
+			if (f == o.f)
+				return g < o.g;
+			else
+				return f < o.f;
+		}
+	};
+  
 	bool dfs(D &d, State &s, Oper pop, Cost g) {
 		Cost f = g + d.h(s);
 
@@ -82,27 +100,21 @@ private:
 				// it is destructed before we create the next child.
 				typename D::Edge e(d, s, ops[n]);
 				Cost child_f = d.h(e.state) + g + e.cost;
-			    actions.push_back(Action(child_f, ops[n]));
+				Action action(child_f, g + e.cost, ops[n], e.revop, e.state);
+			    actions.push_back(action);
 			}
-			
 		}
 
 		std::sort(actions.begin(), actions.end());
 
 		for (unsigned int n = 0; n < actions.size(); n++) {
 			bool goal = false;
-			{	// Put the transition in a new scope so that
-				// it is destructed before we test for a goal.
-				// If a goal was found then we want the
-				// transition reverted so that we may push
-				// the parent state onto the path.
-				typename D::Edge e(d, s, actions[n].second);
-				goal = dfs(d, e.state, e.revop, g + e.cost);
-			}
+			Action action = actions[n];
+			goal = dfs(d, action.state, action.revop, action.g);
 
 			if (goal) {
 				this->res.path.push_back(s);
-				this->res.ops.push_back(actions[n].second);
+				this->res.ops.push_back(action.op);
 				solved = true;
 			}
 		}
