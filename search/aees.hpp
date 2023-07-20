@@ -25,7 +25,7 @@ template <class D> struct AnytimeEES : public SearchAlgorithm<D> {
 		PackedState state;
 		Oper op, pop;
 		Cost f, g, h;
-		int d;
+		int depth, d;
 		double hhat, fhat, dhat;
 
 		Node() : open(false), focalind(-1), cleanupind(-1) {
@@ -99,7 +99,10 @@ template <class D> struct AnytimeEES : public SearchAlgorithm<D> {
 	AnytimeEES(int argc, const char *argv[]) :
 			SearchAlgorithm<D>(argc, argv), herror(0), derror(0), 
 			dropdups(false), closed(30000001) {
+		dump = false;
 		for (int i = 0; i < argc; i++) {
+			if (strcmp(argv[i], "-dump") == 0)
+				dump = true;
 			if (strcmp(argv[i], "-dropdups") == 0)
 				dropdups = true;
 		}
@@ -172,6 +175,10 @@ template <class D> struct AnytimeEES : public SearchAlgorithm<D> {
 		cleanup.push(n0);
 
 		fhatmin = n0->fhat;
+		
+		if(dump) {
+		  fprintf(stderr, "depth,expnum,state,g\n");
+		}
 
 		sol_count = 0;
 		dfrowhdr(stdout, "incumbent", 6, "num", "nodes expanded",
@@ -200,11 +207,19 @@ template <class D> struct AnytimeEES : public SearchAlgorithm<D> {
 			
 			State buf, &state = d.unpack(buf, n->state);
 
+			
+			if(dump) {
+			  fprintf(stderr, "%d,%lu,", n->depth,
+					  SearchAlgorithm<D>::res.expd);
+			  d.dumpstate(stderr, state);
+			  fprintf(stderr, ",%f\n", (float)n->g);
+			}
+
 			if(d.isgoal(state)) {
 				goalfound(n);
 				continue;
 			}
-
+			
 			expand(d, n, state);
 		}
 
@@ -254,6 +269,7 @@ private:
 
 			Node *kid = nodes->construct();
 			typename D::Edge e(d, state, ops[i]);
+			kid->depth = n->depth + 1;
 			kid->g = n->g + e.cost;
 			typename D::Cost h = d.h(e.state);
 			kid->h = h;
@@ -280,6 +296,7 @@ private:
 				}
 				dup->f = dup->f - dup->g + kid->g;
 				dup->g = kid->g;
+				dup->depth = kid->depth;
 				double dhat = dup->d / (1 - derror);
 				double hhat = dup->h + (herror * dhat);
 				dup->hhat = hhat;
@@ -385,6 +402,7 @@ private:
 		Node *n0 = nodes->construct();
 		d.pack(n0->state, s0);
 		n0->h = d.h(s0);
+		n0->depth = 0;
 		n0->g = Cost(0);
 		n0->f = n0->h + n0->g;
 		n0->dhat = n0->d;
@@ -401,6 +419,7 @@ private:
 	double derror;
 
 	bool dropdups;
+    bool dump;
 	double wt;
 	RBTree<FHatOps, Node*> open;
 	BinHeap<DHatOps, Node*> focal;

@@ -16,10 +16,10 @@
 #include "bead.hpp"
 #include "trianglebead.hpp"
 #include "rectangle.hpp"
-#include "beam-mm.hpp"
 #include "hhatgreedy.hpp"
-#include "ees.hpp"
+//#include "ees.hpp"
 #include "aees.hpp"
+#include "ucs.hpp"
 
 #include <cstddef>
 #include <cstdio>
@@ -115,14 +115,14 @@ template<class D> SearchAlgorithm<D> *getsearch(int argc, const char *argv[]) {
 		return new TriangleBeadSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "rectangle") == 0)
 		return new RectangleBeadSearch<D>(argc, argv);
-	else if (strcmp(argv[1], "beam-mm") == 0)
-		return new BeamSearchMM<D>(argc, argv);
 	else if (strcmp(argv[1], "hhatgreedy") == 0)
 		return new Hhatgreedy<D>(argc, argv);
-	else if (strcmp(argv[1], "ees") == 0)
-		return new EES<D>(argc, argv);
+	//else if (strcmp(argv[1], "ees") == 0)
+	//	return new EES<D>(argc, argv);
 	else if (strcmp(argv[1], "aees") == 0)
 		return new AnytimeEES<D>(argc, argv);
+	else if (strcmp(argv[1], "ucs") == 0)
+		return new UniformCost<D>(argc, argv);
 
 	fatal("Unknown algorithm: %s", argv[1]);
 	return NULL;	// Unreachable

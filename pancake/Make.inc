@@ -1,9 +1,11 @@
 pancake:\
+	pancake/20pancake_solver\
 	pancake/50pancake_solver\
 	pancake/70pancake_solver\
 	pancake/100pancake_solver
 
 CLEAN+=\
+	pancake/20pancake_solver\
 	pancake/50pancake_solver\
 	pancake/70pancake_solver\
 	pancake/100pancake_solver
