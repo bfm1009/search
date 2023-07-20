@@ -246,10 +246,15 @@ public:
 	}
 
 	void dumpstate(FILE *out, const State &s) const {
-		auto pt = map->coord(s.loc);
-		fprintf(out, "(%d, %d), energy=%d, ndirt=%d", pt.first, pt.second, s.energy, s.ndirt);
-		for (unsigned int i = 0; i < s.dirt->size(); i++)
-			fprintf(out, " %d", (int) s.dirt->at(i));
+		// auto pt = map->coord(s.loc);
+		// fprintf(out, "(%d, %d), energy=%d, ndirt=%d", pt.first, pt.second, s.energy, s.ndirt);
+		// for (unsigned int i = 0; i < s.dirt->size(); i++)
+		// 	fprintf(out, " %d", (int) s.dirt->at(i));
+		
+	    fprintf(out, "%d %d %d ", s.loc, s.energy, s.ndirt);
+		
+	    for (unsigned int i = 0; i < s.dirt->size(); i++)
+		 	fprintf(out, "%d", (int) s.dirt->at(i));
 	}
 
 	Cost pathcost(const std::vector<State>&, const std::vector<Oper>&);
