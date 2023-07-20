@@ -33,10 +33,6 @@ public:
 			i++;
 		}
 
-		if(numsols > 0) {
-			rebuild_sol(d, s0, D::Nop, Cost(0));
-		}
-
 		this->finish();
 	}
 
@@ -58,6 +54,9 @@ private:
 				bound = f;
 			}
 			
+			this->res.path.clear();
+			this->res.ops.clear();
+			this->res.path.push_back(s);
 			return true;
 		}
 
@@ -79,12 +78,17 @@ private:
 			bool goal = false;
 			{	// Put the transition in a new scope so that
 				// it is destructed before we test for a goal.
+				// If a goal was found then we want the
+				// transition reverted so that we may push
+				// the parent state onto the path.
 				typename D::Edge e(d, s, ops[n]);
 				goal = dfs(d, e.state, e.revop, g + e.cost);
 			}
 
 			if (goal) {
-			  solved = true;
+				this->res.path.push_back(s);
+				this->res.ops.push_back(ops[n]);
+				solved = true;
 			}
 		}
 
@@ -103,48 +107,6 @@ private:
 		dfrow(stdout, "incumbent", "uuuggg", n, this->res.expd,
 			  this->res.gend, bound, cost,
 			walltime() - this->res.wallstart);
-	}
-
-	bool rebuild_sol(D &d, State &s, Oper pop, Cost g) {
-		Cost f = g + d.h(s);
-
-		if (f <= bound && d.isgoal(s)) {
-			this->res.path.push_back(s);
-			return true;
-		}
-
-		if (f > bound) {
-			return false;
-		}
-
-		this->res.expd++;
-
-		typename D::Operators ops(d, s);
-		for (unsigned int n = 0; n < ops.size(); n++) {
-			if (this->limit())
-				return false;
-			if (ops[n] == pop)
-				continue;
-
-			this->res.gend++;
-			bool goal = false;
-			{	// Put the transition in a new scope so that
-				// it is destructed before we test for a goal.
-				// If a goal was found then we want the
-				// transition reverted so that we may push
-				// the parent state onto the path.
-				typename D::Edge e(d, s, ops[n]);
-				goal = rebuild_sol(d, e.state, e.revop, g + e.cost);
-			}
-
-			if (goal) {
-				this->res.path.push_back(s);
-				this->res.ops.push_back(ops[n]);
-				return true;
-			}
-		}
-
-		return false;
 	}
 	
 	Cost bound;
