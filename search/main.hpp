@@ -1,6 +1,7 @@
 // Copyright © 2013 the Search Authors under the MIT license. See AUTHORS for the list of authors.
 #include "search.hpp"
 #include "idastar.hpp"
+#include "dfsstar.hpp"
 #include "astar.hpp"
 #include "astar-dump.hpp"
 #include "wastar.hpp"
@@ -14,6 +15,7 @@
 #include "dtastar.hpp"
 #include "beam.hpp"
 #include "bead.hpp"
+#include "cab.hpp"
 #include "trianglebead.hpp"
 #include "rectangle.hpp"
 #include "hhatgreedy.hpp"
@@ -79,6 +81,8 @@ template<class D> SearchAlgorithm<D> *getsearch(int argc, const char *argv[]) {
 
 	if (strcmp(argv[1], "idastar") == 0)
 		return new Idastar<D>(argc, argv);
+	if (strcmp(argv[1], "dfsstar") == 0)
+		return new DFSstar<D>(argc, argv);
 	else if (strcmp(argv[1], "astar") == 0)
 		return new Astar<D>(argc, argv);
 	else if (strcmp(argv[1], "astar-dump") == 0)
@@ -111,6 +115,8 @@ template<class D> SearchAlgorithm<D> *getsearch(int argc, const char *argv[]) {
 		return new BeamSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "bead") == 0)
 		return new BeadSearch<D>(argc, argv);
+	else if (strcmp(argv[1], "cab") == 0)
+		return new CABSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "triangle") == 0)
 		return new TriangleBeadSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "rectangle") == 0)
