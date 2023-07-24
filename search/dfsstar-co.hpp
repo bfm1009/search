@@ -1,5 +1,6 @@
 // Copyright © 2013 the Search Authors under the MIT license. See AUTHORS for the list of authors.
 #include <cstdio>
+#include <algorithm>
 #include "../search/search.hpp"
 
 void dfrowhdr(FILE*, const char*, unsigned int, ...);
