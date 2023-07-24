@@ -3,6 +3,7 @@
 #include "idastar.hpp"
 #include "dfsstar.hpp"
 #include "dfsstar-co.hpp"
+#include "ildsstar.hpp"
 #include "astar.hpp"
 #include "astar-dump.hpp"
 #include "wastar.hpp"
@@ -86,6 +87,8 @@ template<class D> SearchAlgorithm<D> *getsearch(int argc, const char *argv[]) {
 		return new DFSstar<D>(argc, argv);
 	if (strcmp(argv[1], "dfsstar-co") == 0)
 		return new DFSstarCO<D>(argc, argv);
+	if (strcmp(argv[1], "ildsstar") == 0)
+		return new ILDSstar<D>(argc, argv);
 	else if (strcmp(argv[1], "astar") == 0)
 		return new Astar<D>(argc, argv);
 	else if (strcmp(argv[1], "astar-dump") == 0)
