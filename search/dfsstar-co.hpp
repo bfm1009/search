@@ -20,8 +20,8 @@ public:
 		this->start();
 		numsols = 0;
 		bound = d.h(s0);
-		dfrowhdr(stdout, "iter", 4, "iter no", "iter bound",
-			"iter expd", "iter gend");
+		dfrowhdr(stdout, "iter", 4, "no", "bound",
+			"expd", "gend");
 
 		i = 0;
 		while (!dfs(d, s0, D::Nop, Cost(0)) && !SearchAlgorithm<D>::limit()) {
@@ -50,7 +50,7 @@ private:
 															   state(s) {}
 		bool operator<(const Action &o) const {
 			if (f == o.f)
-				return g < o.g;
+				return g > o.g;
 			else
 				return f < o.f;
 		}
