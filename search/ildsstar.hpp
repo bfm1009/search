@@ -176,11 +176,11 @@ private:
 			walltime() - this->res.wallstart);
 	}
 	
-	Cost bound;
+	double bound;
 	int depth_bound;
 	int k_max;
 	int i;
-	Cost min_pruned_k;
-	Cost min_pruned_d;
+	double min_pruned_k;
+	double min_pruned_d;
 	int numsols;
 };
