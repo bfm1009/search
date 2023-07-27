@@ -83,7 +83,6 @@ template <class D, bool speedy = false> struct Greedy : public SearchAlgorithm<D
 			State buf, &state = d.unpack(buf, n->state);
 
 			if(dump && n) {
-			  fprintf(stderr, "expanded state:\n");
 			  d.dumpstate(stderr, state);
 			}
 
