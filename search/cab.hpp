@@ -180,7 +180,7 @@ template <class D> struct CABSearch : public SearchAlgorithm<D> {
 	// row outputs an incumbent solution row.
 	void row(unsigned long n, unsigned long width, Cost cost) {
 		dfrow(stdout, "incumbent", "uuuugg", n, this->res.expd,
-			  this->res.gend, width, cost,
+			  this->res.gend, width, (float)cost,
 			  walltime() - this->res.wallstart);
 	}
 

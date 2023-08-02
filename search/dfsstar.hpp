@@ -20,8 +20,8 @@ public:
 		this->start();
 		numsols = 0;
 		bound = d.h(s0);
-		dfrowhdr(stdout, "iter", 4, "iter no", "iter bound",
-			"iter expd", "iter gend");
+		dfrowhdr(stdout, "iter", 4, "no", "bound",
+			"expd", "gend");
 
 		i = 0;
 		while (!dfs(d, s0, D::Nop, Cost(0)) && !SearchAlgorithm<D>::limit()) {
@@ -105,7 +105,7 @@ private:
 	// row outputs an incumbent solution row.
 	void row(unsigned long n, Cost cost) {
 		dfrow(stdout, "incumbent", "uuuggg", n, this->res.expd,
-			  this->res.gend, bound, cost,
+			  this->res.gend, bound, (float)cost,
 			walltime() - this->res.wallstart);
 	}
 	

@@ -19,8 +19,8 @@ public:
 	void search(D &d, State &s0) {
 		this->start();
 		bound = d.h(s0);
-		dfrowhdr(stdout, "iter", 4, "iter no", "iter bound",
-			"iter expd", "iter gend");
+		dfrowhdr(stdout, "iter", 4, "no", "bound",
+			"expd", "gend");
 
 		for (int i = 0; !SearchAlgorithm<D>::limit(); i++) {
 			minoob = Cost(-1);

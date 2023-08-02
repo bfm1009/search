@@ -172,7 +172,7 @@ private:
 	// row outputs an incumbent solution row.
   void row(unsigned long n, Cost cost, int depth, int k) {
 		dfrow(stdout, "incumbent", "uuuuugg", n, this->res.expd,
-			  this->res.gend, depth, k, cost,
+			  this->res.gend, depth, k, (float)cost,
 			walltime() - this->res.wallstart);
 	}
 	
