@@ -70,7 +70,7 @@ private:
 		bool solved = false;
 		for (unsigned int n = 0; n < ops.size(); n++) {
 			if (this->limit())
-				return false;
+				return solved;
 			if (ops[n] == pop)
 				continue;
 
@@ -105,7 +105,7 @@ private:
 	// row outputs an incumbent solution row.
 	void row(unsigned long n, Cost cost) {
 		dfrow(stdout, "incumbent", "uuuggg", n, this->res.expd,
-			  this->res.gend, bound, (float)cost,
+			  this->res.gend, (float)bound, (float)cost,
 			walltime() - this->res.wallstart);
 	}
 	
