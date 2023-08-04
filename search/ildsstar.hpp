@@ -81,7 +81,7 @@ private:
 	bool ilds(D &d, State &s, Oper pop, Cost g, unsigned int k, unsigned int depth) {
 		Cost f = g + d.h(s);
 
-		if (d.d(s) > depth) {
+		if ((unsigned int)d.d(s) > depth) {
 			if (f < min_pruned_d) {
 			  min_pruned_d = f;
 			}
