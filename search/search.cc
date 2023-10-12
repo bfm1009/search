@@ -16,7 +16,7 @@ static int timersig(int);
 
 SearchStats::SearchStats() : 
 	wallstart(0), cpustart(0), wallend(0), cpuend(0),
-	expd(0), gend(0), reopnd(0), dups(0) { }
+	expd(0), gend(0), reopnd(0), dups(0), avgbeamwidth(0) { }
 
 void SearchStats::start() {
 	wallstart = walltime();
@@ -35,6 +35,8 @@ void SearchStats::output(FILE *f) {
 	dfpair(f, "total nodes generated", "%lu", gend);
 	dfpair(f, "total nodes duplicated", "%lu", dups);
 	dfpair(f, "total nodes reopened", "%lu", reopnd);
+	if (avgbeamwidth > 0)
+		dfpair(f, "average beam width", "%f", avgbeamwidth);
 }
 
 Limit::Limit() :

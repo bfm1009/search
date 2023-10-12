@@ -23,6 +23,7 @@ public:
 	double wallstart, cpustart;
 	double wallend, cpuend;
 	unsigned long expd, gend, reopnd, dups;
+	double avgbeamwidth;
 
 	SearchStats();
 
@@ -45,6 +46,7 @@ public:
 		gend += other.gend;
 		reopnd += other.reopnd;
 		dups += other.dups;
+		avgbeamwidth += other.avgbeamwidth;
 
 		double wt = wallend - wallstart;
 		double ct = cpuend - cpustart;

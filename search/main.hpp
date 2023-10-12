@@ -24,6 +24,7 @@
 //#include "ees.hpp"
 #include "aees.hpp"
 #include "ucs.hpp"
+#include "thresholdbead.hpp"
 
 #include <cstddef>
 #include <cstdio>
@@ -46,7 +47,7 @@ template<class D> Result<D> search(D &d, int argc, const char *argv[]) {
 template<class D> Result<D> searchGet(SearchAlgorithm<D>*(*get)(int, const char *[]), D &d, int argc, const char *argv[]) {
 	SearchAlgorithm<D> *srch = get(argc, argv);
 	if (!srch && argc > 1)
-		fatal("Unknow search algorithm: %s", argv[1]);
+		fatal("Unknown search algorithm: %s", argv[1]);
 	if (!srch)
 		fatal("Must specify a search algorithm");
 
@@ -121,6 +122,8 @@ template<class D> SearchAlgorithm<D> *getsearch(int argc, const char *argv[]) {
 		return new BeamSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "bead") == 0)
 		return new BeadSearch<D>(argc, argv);
+	else if (strcmp(argv[1], "thresholdbead") == 0)
+		return new ThresholdBeadSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "cab") == 0)
 		return new CABSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "triangle") == 0)
