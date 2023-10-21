@@ -5,6 +5,8 @@
 #include "../utils/pool.hpp"
 #include <vector>
 #include <limits>
+#include <iostream>
+#include <math.h>
                                                                                 
 template <class D> struct ThresholdBeadSearch : public SearchAlgorithm<D> {
 
@@ -69,7 +71,7 @@ template <class D> struct ThresholdBeadSearch : public SearchAlgorithm<D> {
 		dropdups = false;
 		for (int i = 0; i < argc; i++) {
 			if (i < argc - 1 && strcmp(argv[i], "-threshold") == 0)
-				threshold = atoi(argv[++i]);
+				threshold = atof(argv[++i]);
 			if (strcmp(argv[i], "-dropdups") == 0)
 				dropdups = true;
 		}
@@ -107,7 +109,9 @@ template <class D> struct ThresholdBeadSearch : public SearchAlgorithm<D> {
 
 				int d_n = n->d;
 				if (d_best == INT_MAX) d_best = d_n;
-				if (d_n - d_best > threshold) break; // Stop adding nodes to beam when the d of one exceeds threshold from best
+				double discrepScore = (d_n - d_best) * 1.0 / d_best;
+				if (d_n > 0 && (d_best == 0 || discrepScore > threshold)) break; // Stop adding nodes to beam when the d of one exceeds threshold from best
+				//if (d_n - d_best > threshold) break;
 
 				unsigned long hash = n->state.hash(&d);
 				Node *dup = closed.find(n->state, hash);
@@ -230,7 +234,7 @@ private:
 		return n0;
 	}
 
-    int threshold;
+    double threshold;
     bool dropdups;
 	OpenList<Node, Node, Cost> open;
  	ClosedList<Node, Node, D> closed;
