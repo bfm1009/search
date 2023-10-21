@@ -25,6 +25,7 @@
 #include "aees.hpp"
 #include "ucs.hpp"
 #include "thresholdbead.hpp"
+#include "outstanding.hpp"
 
 #include <cstddef>
 #include <cstdio>
@@ -130,6 +131,8 @@ template<class D> SearchAlgorithm<D> *getsearch(int argc, const char *argv[]) {
 		return new TriangleBeadSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "rectangle") == 0)
 		return new RectangleBeadSearch<D>(argc, argv);
+	else if (strcmp(argv[1], "outstanding") == 0)
+		return new OutstandingSearch<D>(argc, argv);
 	else if (strcmp(argv[1], "hhatgreedy") == 0)
 		return new Hhatgreedy<D>(argc, argv);
 	//else if (strcmp(argv[1], "ees") == 0)
