@@ -3,7 +3,10 @@
 #pragma once                                                                    
 #include "../search/search.hpp"                                                 
 #include "../utils/pool.hpp"
+#include "../structs/binheap.hpp"
 #include <list>
+#include <iostream>
+#include <limits>
                                                                                 
 template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 
@@ -19,9 +22,10 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		PackedState state;
 		Oper op, pop;
 		int d, depth;
-		Cost f, g;
+		Cost f, g, h;
+		double discrep;
   
-		Node() : openind(-1) {
+		Node() : openind(-1), discrep(std::numeric_limits<double>::max()) {
 		}
 
 		static ClosedEntry<Node, D> &closedentry(Node *n) {
@@ -44,19 +48,12 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 
 		/* Indicates whether Node a has better value than Node b. */
 		static bool pred(Node *a, Node *b) {
-			if (a->d == b->d)
-				return a->g > b->g;
-			return a->d < b->d;
-		}
-
-		/* Priority of node. */
-		static Cost prio(Node *n) {
-			return n->d;
-		}
-
-		/* Priority for tie breaking. */
-		static Cost tieprio(Node *n) {
-			return n->g;
+			if (a->discrep == b->discrep) {
+				if (a->f == b->f)
+					return a->h < b->h;
+				return a->f < b->f;
+			}
+			return a->discrep < b->discrep;
 		}
 
     private:
@@ -64,93 +61,66 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
     
 	};
 
-	struct RingNode {
-	  RingNode *next;
-	  RingNode *prev;
-	  OpenList<Node, Node, double> *list;
-	  RingNode(OpenList<Node, Node, double> *l) {
-		next = NULL;
-		prev = NULL;
-		list = l;
-	  }
-	  ~RingNode() {
-		delete list;
-	  }
-	};
+	struct DepthNode {
+		int heapind;
+		DepthNode *next;
+		int depth, dBest;
+		OpenList<Node, Node, double> *openlist;
   
-	struct Ring {
-	  RingNode *begin;
-	  RingNode *end;
-	  int maxsize;
-	  int size;
-	  int removed;
-	  int reused;
+		DepthNode(int depth) : heapind(-1), next(NULL), depth(depth),
+			dBest(std::numeric_limits<int>::max()), openlist(new OpenList<Node, Node, double>()) {}
 
-	  Ring() {
-		begin = new RingNode(NULL);
-		end = new RingNode(NULL);
-		begin->next = end;
-		begin->prev = end;
-		end->next = begin;
-		end->prev = begin;
-		maxsize = 0;
-		size = 0;
-		removed = 0;
-		reused = 0;
-	  }
-
-	  ~Ring() {
-		while(begin->next != end) {
-		  RingNode *temp = begin;
-		  begin = begin->next;
-		  delete temp;
+		~DepthNode() {
+			delete openlist;
 		}
-		delete begin;
-		delete end;
-	  }
 
-	  void move_after(RingNode *n, RingNode *b) {
-		n->prev->next = n->next;
-		n->next->prev = n->prev;
-		b->next->prev = n;
-		n->next = b->next;
-		n->prev = b;
-		b->next = n;
-	  }
-
-	  void add() {
-		if(begin->prev == end) {
-		  RingNode *n = new RingNode(new OpenList<Node, Node, double>());
-		  n->prev = end->prev;
-		  n->next = end;
-		  end->prev->next = n;
-		  end->prev = n;
-		  maxsize++;
-		  size++;
-		} else {
-		  move_after(begin->prev, end->prev);
-		  size++;
-		  reused++;
+		/*
+		 * Add node to open list
+		 * and return whether or not it has a new best d.
+		 */
+		bool addToOpenlist(Node *n) {
+			bool dBestChanged = false;
+			if (n->d < dBest) {
+				dBest = n->d;
+				dBestChanged = true;
+			}
+			calcDiscrep(n);
+			openlist->push(n);
+			return dBestChanged;
 		}
-	  }
 
-	  void remove_rest(RingNode *from) {
-		RingNode *a = from->next;
-		RingNode *b = end->prev;
+		/* Calculate the discrepancy score of each node in the open list. */
+		void calcDiscreps(BinHeap<DepthNode, DepthNode*> openlists) {
+			openlist->foreach(&calcDiscrep);
+			openlists.update(heapind);
+		}
 
-		end->prev = from;
-		from->next = end;
-		a->prev = end;
-		b->next = end->next;
-		end->next->prev = b;
-		end->next = a;
-	  }
+		/* Set index of DepthNode on heap. */
+		static void setind(DepthNode *n, int i) {
+			n->heapind = i;
+		}
 
-	  void remove() {
-	    move_after(begin->next, end);
-		size--;
-		removed++;
-	  }
+		/* Get index of DepthNode on heap. */
+		static int getind(const DepthNode *n) {
+			return n->heapind;
+		}
+
+		/* Indicates whether DepthNode a has better value than DepthNode b. */
+		static bool pred(DepthNode *a, DepthNode *b) {
+			Node *aBestNode = a->openlist->front();
+			Node *bBestNode = b->openlist->front();
+			if (!aBestNode) return false;
+			if (!bBestNode) return true;
+			if (aBestNode->discrep == bBestNode->discrep)
+				return a->depth < b->depth;
+			return aBestNode->discrep < bBestNode->discrep;
+		}
+
+	private:
+		/* Calculate the discrepancy score of a node. */
+		void calcDiscrep(Node *n) {
+			n->discrep = (n->d - dBest) * 1.0 / dBest;
+		}
 	};
   
 
@@ -158,21 +128,15 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		SearchAlgorithm<D>(argc, argv), closed(30000001) {
 		dropdups = false;
 		dump = false;
-		exponential_h = false;
-		delta_height = 1;
-		delta_base = 1;
+		k = 1;
+
 		for (int i = 0; i < argc; i++) {
 			if (strcmp(argv[i], "-dropdups") == 0)
 				dropdups = true;
-			if (i < argc - 1 && (strcmp(argv[i], "-dH") == 0 ||
-								 strcmp(argv[i], "-aspect") == 0))
-				delta_height = strtod(argv[++i], NULL);
-			if (i < argc - 1 && strcmp(argv[i], "-dB") == 0)
-				delta_base = strtod(argv[++i], NULL);
 			if (strcmp(argv[i], "-dump") == 0)
 				dump = true;
-			if (strcmp(argv[i], "-expo") == 0)
-				exponential_h = true;
+			if (strcmp(argv[i], "-k") == 0)
+				k = atoi(argv[++i]);
 		}
     
 		nodes = new Pool<Node>();
@@ -219,11 +183,6 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 
 		Node *n0 = init(d, s0);
 		closed.add(n0);
-
-		openlists.add();
-		auto open_it = openlists.end->prev;
-		open = open_it->list;
-		auto last_filled = open_it;
 		
 		if(dump) {
 		  fprintf(stderr, "depth,expnum,state,g\n");
@@ -234,12 +193,9 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		}
 
 		open_count = 0;
-		expand(d, n0, s0, 0);
-		
-		int width_inc = int(delta_base);
-		int depth_todo = int(delta_height);
-		int n_iter = 0;
-		int exp_todo = width_inc;
+		addDepthLevel();
+		expand(d, n0, s0, lockedDepth);
+		addDepthLevel();
 
 		sol_count = 0;
 		depth = 1;
@@ -250,94 +206,32 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		bool done = false;
     
 		while (!done && !SearchAlgorithm<D>::limit()) {
-		  done = true;
-		  depth++;
-		  n_iter++;
-
-		  open_it = openlists.begin->next;
-		  open = open_it->list;
-
-		  openlists.add();
-		  depth_todo = int(delta_height);
-		  
-		  if (exponential_h){
-			delta_height = delta_height*2;
-		  }
-		  
-		  int curr_depth = openlists.removed;
-		  
-		  // loop through all open lists, adding more at the end if needed
-		  while(open_it->next != openlists.end) {
-			curr_depth++;
-			
-			if(open_it->next->next != openlists.end) {
-			  exp_todo = width_inc;
-			} else {
-			  exp_todo = n_iter * width_inc;
-			  
-			  // create new open lists for this iteration
-			  if(depth_todo > 0 && !open->empty()) {
-				openlists.add();
-				depth_todo--;
-			  } else {
-				break;
-			  }
-			}
-			exp_todo = std::min((int)open->size(), exp_todo);
-			
-			Node *arr[exp_todo];
-			bool some_exp = false;
-			for(int i = 0; i < exp_todo; i++) {
-			  Node *n = NULL;
+			done = true;
+			Node *n = NULL;
+			DepthNode *bestDepth;
+			OpenList<Node, Node, double> *open;
 				  
-			  while(!n && !open->empty()) {
+			do {
+				bestDepth = openlists.frontUnsafe();
+				open = bestDepth->openlist;
+				if (open->empty()) break;
 				n = dedup(d, open->pop());
+				openlists.update(bestDepth->heapind);
 				open_count--;
-			  }
-			  
-			  arr[i] = n;
+			} while (!n);
 
-			  if(n)
-				some_exp = true;
-			}
-
-			// move to next open list
-		    open_it = open_it->next;
-			open = open_it->list;
-
-			// record the last filled open list for pruning
-			if(some_exp)
-			  last_filled = open_it;
-
-			// prune if this is the shallowest depth open list and it is empty
-			if(!some_exp && done) {
-				openlists.remove();
-				continue;
-			}
-
-			// expand one or more nodes, based on slope
-			for(int i = 0; i < exp_todo; i++) {
-			  Node *n = arr[i];
-			  if(!n)
-				continue;
-			  
-			  State buf, &state = d.unpack(buf, n->state);
-			  if(dump) {
-				fprintf(stderr, "%d,%lu,", curr_depth,
+			if (n) {
+				State buf, &state = d.unpack(buf, n->state);
+				if(dump) {
+					fprintf(stderr, "%d,%lu,", bestDepth->depth,
 						SearchAlgorithm<D>::res.expd);
-				d.dumpstate(stderr, state);
-				fprintf(stderr, ",%f\n", (float)n->g);
-			  }
-			  expand(d, n, state, curr_depth);
+					d.dumpstate(stderr, state);
+					fprintf(stderr, ",%f\n", (float)n->g);
+				}
+				expand(d, n, state, bestDepth->next);
+				
+				done = false;
 			}
-			
-			done = false;
-		  }
-
-		  // prune sequences of empty open lists from end
-		  if(last_filled != openlists.end->prev) {
-			openlists.remove_rest(last_filled);
-		  }
 		}
 
 		if(cand) {
@@ -349,7 +243,6 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 
 	virtual void reset() {
 		SearchAlgorithm<D>::reset();
-		open->clear();
 		closed.clear();
 		delete nodes;
 		nodes = new Pool<Node>();
@@ -358,34 +251,41 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 	virtual void output(FILE *out) {
 		SearchAlgorithm<D>::output(out);
 		closed.prstats(stdout, "closed ");
-		dfpair(stdout, "open lists created", "%d", openlists.maxsize);
-		dfpair(stdout, "open list type", "%s", open->kind());
+		dfpair(stdout, "open lists created", "%d", openlists.size());
+		dfpair(stdout, "open list type", "%s", openlists.frontUnsafe()->openlist->kind());
 		dfpair(stdout, "node size", "%u", sizeof(Node));
 	}
 
 
 private:
 
-  void expand(D &d, Node *n, State &state, int curr_depth) {
+  void expand(D &d, Node *n, State &state, DepthNode *nextDepth) {
 		SearchAlgorithm<D>::res.expd++;
+		nodesExpanded++;
+		if (nextDepth == lockedDepth) nodesExpandedAtDeepestUnlockedDepth++;
+		bool dBestChanged = false;
 
 		typename D::Operators ops(d, state);
 		for (unsigned int i = 0; i < ops.size(); i++) {
 			if (ops[i] == n->pop)
 				continue;
 			SearchAlgorithm<D>::res.gend++;
-			considerkid(d, n, state, ops[i], curr_depth);
+			dBestChanged = considerkid(d, n, state, ops[i], nextDepth);
 		}
+
+		if (dBestChanged && nextDepth != lockedDepth)
+			nextDepth->calcDiscreps(openlists);
 	}
 
-  void considerkid(D &d, Node *parent, State &state, Oper op, int curr_depth) {
+  bool considerkid(D &d, Node *parent, State &state, Oper op, DepthNode *nextDepth) {
 		Node *kid = nodes->construct();
 		assert (kid);
 		typename D::Edge e(d, state, op);
 		kid->g = parent->g + e.cost;
 		d.pack(kid->state, e.state);
 
-		kid->f = kid->g + d.h(e.state);
+		kid->h = d.h(e.state);
+		kid->f = kid->g + kid->h;
 		kid->d = d.d(e.state);
 		kid->parent = parent;
 		kid->op = op;
@@ -395,7 +295,7 @@ private:
 		if (d.isgoal(kstate) && (!cand || kid->g < cand->g)) {
 		  
 		  if(dump) {
-			fprintf(stderr, "%d,%lu,", curr_depth,
+			fprintf(stderr, "%d,%lu,", nextDepth->depth - 1,
 					SearchAlgorithm<D>::res.expd);
 			d.dumpstate(stderr, kstate);
 			fprintf(stderr, ",%f\n", (float)kid->g);
@@ -406,14 +306,15 @@ private:
 		  dfrow(stdout, "incumbent", "uuugg", sol_count, this->res.expd,
 				this->res.gend, (float)cand->g,
 				walltime() - this->res.wallstart);
-		  return;
+		  return false;
 		} else if(cand && cand->g <= kid->f) {
 		  nodes->destruct(kid);
-		  return;
+		  return false;
 		}
 
 		open_count++;
-		open->push(kid);
+		bool dBestChanged = nextDepth->addToOpenlist(kid);
+		return dBestChanged;
 	}
 
 	Node *init(D &d, State &s0) {
@@ -421,26 +322,46 @@ private:
 		d.pack(n0->state, s0);
 		n0->d = d.d(s0);
 		n0->g = Cost(0);
-		n0->f = d.h(s0);
+		n0->h = d.h(s0);
+		n0->f = n0->h;
 		n0->pop = n0->op = D::Nop;
 		n0->parent = NULL;
 		cand = NULL;
+		lockedDepth = NULL;
+		nodesExpanded = 0;
+		nodesExpandedAtDeepestUnlockedDepth = 0;
 		return n0;
+	}
+
+	/* Unlock the deepest depth, then add another depth level. */
+	void addDepthLevel() {
+		DepthNode *newDeepest;
+
+		if (!lockedDepth) // Depth = 0
+			newDeepest = new DepthNode(1);
+		else {
+			newDeepest = new DepthNode(lockedDepth->depth + 1);
+			lockedDepth->next = newDeepest;
+			lockedDepth->calcDiscreps(openlists);
+		}
+
+		openlists.push(newDeepest);
+		lockedDepth = newDeepest;
+		nodesExpandedAtDeepestUnlockedDepth = 0;
+		depth++;
 	}
 
     bool dropdups;
     bool dump;
-	bool exponential_h;
-    Ring openlists;
- 	OpenList<Node, Node, double> *open;
+    BinHeap<DepthNode, DepthNode*> openlists;
  	ClosedList<Node, Node, D> closed;
 	Pool<Node> *nodes;
 	Node *cand;
-	int width;
+	DepthNode *lockedDepth;
 	int depth;
+	int nodesExpanded;
+	int nodesExpandedAtDeepestUnlockedDepth;
 	int open_count;
 	int sol_count;
-	int delta_height;
-	int delta_base;
-  
+	int k;
 };

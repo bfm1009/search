@@ -108,6 +108,13 @@ public:
 		heap.push(n);
 	}
 
+	Node *front() {
+		boost::optional<Node*> p = heap.front();
+		if (!p)
+			return NULL;
+		return *p;
+	}
+
 	Node *pop() {
 		boost::optional<Node*> p = heap.pop();
 		if (!p)
@@ -139,6 +146,13 @@ public:
 
 	void clear() {
 		heap.clear();
+	}
+
+	void foreach(void (*func)(Node*)) {
+		std::vector<Node*> data = heap.data();
+		for (int i = 0; i < data.size(); i++)
+			func(data[i]);
+		heap.reinit();
 	}
 
 private:

@@ -46,6 +46,10 @@ public:
 		return boost::optional<Elm>(heap[0]);
 	}
 
+	Elm frontUnsafe() {
+		return heap[0];
+	}
+
 	// update updates the element in the heap at the given
 	// index.  This should be called whenever the priority
 	// of an element changes.  O(lg n) time.
