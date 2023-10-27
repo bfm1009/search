@@ -84,14 +84,14 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 				dBest = n->d;
 				dBestChanged = true;
 			}
-			calcDiscrep(n);
+			calcDiscrep((void*) &dBest, n);
 			openlist->push(n);
 			return dBestChanged;
 		}
 
 		/* Calculate the discrepancy score of each node in the open list. */
 		void calcDiscreps(BinHeap<DepthNode, DepthNode*> openlists) {
-			openlist->foreach(&calcDiscrep);
+			openlist->foreach((void*) &dBest, &DepthNode::calcDiscrep);
 			openlists.update(heapind);
 		}
 
@@ -118,7 +118,8 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 
 	private:
 		/* Calculate the discrepancy score of a node. */
-		void calcDiscrep(Node *n) {
+		static void calcDiscrep(void *dBestPtr, Node *n) {
+			int dBest = *((int*) dBestPtr);
 			n->discrep = (n->d - dBest) * 1.0 / dBest;
 		}
 	};

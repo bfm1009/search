@@ -148,10 +148,10 @@ public:
 		heap.clear();
 	}
 
-	void foreach(void (*func)(Node*)) {
+	void foreach(void *params, void (*func)(void*, Node*)) {
 		std::vector<Node*> data = heap.data();
-		for (int i = 0; i < data.size(); i++)
-			func(data[i]);
+		for (long unsigned int i = 0; i < data.size(); i++)
+			func(params, data[i]);
 		heap.reinit();
 	}
 
