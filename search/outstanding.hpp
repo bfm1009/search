@@ -78,13 +78,13 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		 * Add node to open list
 		 * and return whether or not it has a new best d.
 		 */
-		bool addToOpenlist(Node *n) {
+		bool addToOpenlist(Node *n, DepthNode *lockedDepth) {
 			bool dBestChanged = false;
 			if (n->d < dBest) {
 				dBest = n->d;
 				dBestChanged = true;
 			}
-			calcDiscrep((void*) &dBest, n);
+			if (this != lockedDepth) calcDiscrep((void*) &dBest, n);
 			openlist->push(n);
 			return dBestChanged;
 		}
@@ -211,15 +211,30 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 			Node *n = NULL;
 			DepthNode *bestDepth;
 			OpenList<Node, Node, double> *open;
+
+			std::vector<DepthNode*> data = openlists.data();
+			cout << depth << " ";
+			for (long unsigned int i = 0; i < data.size(); i++) {
+				DepthNode *node = data[i];
+				if (node->openlist->size() > 0)
+					cout << "[depth: " << node->depth << ", size: " << node->openlist->size() << ", bestDiscrep: " << (!node->openlist->empty() ? node->openlist->front()->discrep : -1) << "] ";
+				else cout << ".";
+			}
+			cout << endl;
 				  
 			do {
 				bestDepth = openlists.frontUnsafe();
 				open = bestDepth->openlist;
 				if (open->empty()) break;
+				cout << "best depth to expand from is " << bestDepth->depth << " | discrep: " << open->front()->discrep << endl;
 				n = dedup(d, open->pop());
 				openlists.update(bestDepth->heapind);
 				open_count--;
 			} while (!n);
+
+			// Override k if necessary
+			if (bestDepth == lockedDepth)
+				addDepthLevel();
 
 			if (n) {
 				State buf, &state = d.unpack(buf, n->state);
@@ -261,8 +276,10 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 private:
 
   void expand(D &d, Node *n, State &state, DepthNode *nextDepth) {
+		cout << "expanding node at depth " << nextDepth->depth - 1 << endl;
+
 		SearchAlgorithm<D>::res.expd++;
-		nodesExpanded++;
+		if (nextDepth->depth > 1) nodesExpandedBesidesFirst++;
 		if (nextDepth == lockedDepth) nodesExpandedAtDeepestUnlockedDepth++;
 		bool dBestChanged = false;
 
@@ -274,8 +291,16 @@ private:
 			dBestChanged = considerkid(d, n, state, ops[i], nextDepth);
 		}
 
+		// Update discrepancy scores at next depth if necessary
 		if (dBestChanged && nextDepth != lockedDepth)
 			nextDepth->calcDiscreps(openlists);
+
+		// Update position of next depth in openlists heap
+		openlists.update(nextDepth->heapind);
+
+		// Unlock deepest depth if enough nodes have been expanded
+		if (nodesExpandedAtDeepestUnlockedDepth == k || nodesExpandedBesidesFirst == k * depth)
+			addDepthLevel();
 	}
 
   bool considerkid(D &d, Node *parent, State &state, Oper op, DepthNode *nextDepth) {
@@ -314,7 +339,7 @@ private:
 		}
 
 		open_count++;
-		bool dBestChanged = nextDepth->addToOpenlist(kid);
+		bool dBestChanged = nextDepth->addToOpenlist(kid, lockedDepth);
 		return dBestChanged;
 	}
 
@@ -329,7 +354,7 @@ private:
 		n0->parent = NULL;
 		cand = NULL;
 		lockedDepth = NULL;
-		nodesExpanded = 0;
+		nodesExpandedBesidesFirst = 0;
 		nodesExpandedAtDeepestUnlockedDepth = 0;
 		return n0;
 	}
@@ -360,7 +385,7 @@ private:
 	Node *cand;
 	DepthNode *lockedDepth;
 	int depth;
-	int nodesExpanded;
+	int nodesExpandedBesidesFirst;
 	int nodesExpandedAtDeepestUnlockedDepth;
 	int open_count;
 	int sol_count;

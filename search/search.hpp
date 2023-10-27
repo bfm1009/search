@@ -109,10 +109,10 @@ public:
 	}
 
 	Node *front() {
-		boost::optional<Node*> p = heap.front();
-		if (!p)
+		boost::optional<Node*> f = heap.front();
+		if (!f)
 			return NULL;
-		return *p;
+		return *f;
 	}
 
 	Node *pop() {
