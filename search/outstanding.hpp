@@ -193,13 +193,12 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		  fprintf(stderr, ",%f\n", (float)n0->g);
 		}
 
+		depth = 0;
 		open_count = 0;
+		sol_count = 0;
 		addDepthLevel();
 		expand(d, n0, s0, lockedDepth);
 		addDepthLevel();
-
-		sol_count = 0;
-		depth = 1;
 
 		dfrowhdr(stdout, "incumbent", 5, "num", "nodes expanded",
 			"nodes generated", "solution cost", "wall time");
@@ -212,15 +211,15 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 			DepthNode *bestDepth;
 			OpenList<Node, Node, double> *open;
 
-			/*std::vector<DepthNode*> data = openlists.data();
+			std::vector<DepthNode*> data = openlists.data();
 			cout << depth << " ";
 			for (long unsigned int i = 0; i < data.size(); i++) {
 				DepthNode *node = data[i];
-				if (node->openlist->size() > 0)
-					cout << "[depth: " << node->depth << ", size: " << node->openlist->size() << ", bestDiscrep: " << (!node->openlist->empty() ? node->openlist->front()->discrep : -1) << ", heapind: " << node->heapind << "] ";
+				if (!node->openlist->empty())
+					cout << "[depth: " << node->depth << ", size: " << node->openlist->size() << ", bestDiscrep: " << (node->openlist->front()->discrep) << ", heapind: " << node->heapind << "] ";
 				else cout << ".";
 			}
-			cout << endl;*/
+			cout << endl;
 				  
 			do {
 				bestDepth = openlists.frontUnsafe();
@@ -288,7 +287,8 @@ private:
 			if (ops[i] == n->pop)
 				continue;
 			SearchAlgorithm<D>::res.gend++;
-			dBestChanged = considerkid(d, n, state, ops[i], nextDepth);
+			bool changed = considerkid(d, n, state, ops[i], nextDepth);
+			dBestChanged = dBestChanged || changed;
 		}
 
 		// Update discrepancy scores at next depth if necessary
@@ -299,7 +299,7 @@ private:
 		openlists.update(nextDepth->heapind);
 
 		// Unlock deepest depth if enough nodes have been expanded
-		if (nodesExpandedAtDeepestUnlockedDepth == k || nodesExpandedBesidesFirst == k * depth)
+		if (nodesExpandedAtDeepestUnlockedDepth == k || (nodesExpandedBesidesFirst >= k * depth && nodesExpandedAtDeepestUnlockedDepth > 0))
 			addDepthLevel();
 	}
 
