@@ -90,7 +90,7 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		}
 
 		/* Calculate the discrepancy score of each node in the open list. */
-		void calcDiscreps(BinHeap<DepthNode, DepthNode*> openlists) {
+		void calcDiscreps(BinHeap<DepthNode, DepthNode*> &openlists) {
 			openlist->foreach((void*) &dBest, &DepthNode::calcDiscrep);
 			openlists.update(heapind);
 		}
@@ -212,21 +212,21 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 			DepthNode *bestDepth;
 			OpenList<Node, Node, double> *open;
 
-			std::vector<DepthNode*> data = openlists.data();
+			/*std::vector<DepthNode*> data = openlists.data();
 			cout << depth << " ";
 			for (long unsigned int i = 0; i < data.size(); i++) {
 				DepthNode *node = data[i];
 				if (node->openlist->size() > 0)
-					cout << "[depth: " << node->depth << ", size: " << node->openlist->size() << ", bestDiscrep: " << (!node->openlist->empty() ? node->openlist->front()->discrep : -1) << "] ";
+					cout << "[depth: " << node->depth << ", size: " << node->openlist->size() << ", bestDiscrep: " << (!node->openlist->empty() ? node->openlist->front()->discrep : -1) << ", heapind: " << node->heapind << "] ";
 				else cout << ".";
 			}
-			cout << endl;
+			cout << endl;*/
 				  
 			do {
 				bestDepth = openlists.frontUnsafe();
 				open = bestDepth->openlist;
 				if (open->empty()) break;
-				cout << "best depth to expand from is " << bestDepth->depth << " | discrep: " << open->front()->discrep << endl;
+				//cout << "best depth to expand from is " << bestDepth->depth << " | discrep: " << open->front()->discrep << endl;
 				n = dedup(d, open->pop());
 				openlists.update(bestDepth->heapind);
 				open_count--;
@@ -276,7 +276,7 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 private:
 
   void expand(D &d, Node *n, State &state, DepthNode *nextDepth) {
-		cout << "expanding node at depth " << nextDepth->depth - 1 << endl;
+		//cout << "expanding node at depth " << nextDepth->depth - 1 << endl;
 
 		SearchAlgorithm<D>::res.expd++;
 		if (nextDepth->depth > 1) nodesExpandedBesidesFirst++;
