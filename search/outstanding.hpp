@@ -211,7 +211,7 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 			DepthNode *bestDepth;
 			OpenList<Node, Node, double> *open;
 
-			std::vector<DepthNode*> data = openlists.data();
+			/*std::vector<DepthNode*> data = openlists.data();
 			cout << depth << " ";
 			for (long unsigned int i = 0; i < data.size(); i++) {
 				DepthNode *node = data[i];
@@ -219,7 +219,7 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 					cout << "[depth: " << node->depth << ", size: " << node->openlist->size() << ", bestDiscrep: " << (node->openlist->front()->discrep) << ", heapind: " << node->heapind << "] ";
 				else cout << ".";
 			}
-			cout << endl;
+			cout << endl;*/
 				  
 			do {
 				bestDepth = openlists.frontUnsafe();

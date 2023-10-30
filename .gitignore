@@ -54,5 +54,7 @@ gridnav/ppm2grid
 traffic/randinst
 traffic/watch
 unknowngridnav/watch
+experiment/results
+experiment/slurmOutput
 
 labyrinth/*
