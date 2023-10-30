@@ -56,5 +56,8 @@ traffic/watch
 unknowngridnav/watch
 experiment/results
 experiment/slurmOutput
+experiment/plots
+__pycache__
+
 
 labyrinth/*

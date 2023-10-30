@@ -5,8 +5,8 @@ import sys
 f = open(f"commands.run", "w")
 
 instances = range(1, 101)
-aspects = [500]
-ks = [3]
+aspects = [1]
+ks = [2, 5]
 
 for instance in instances:
     for aspect in aspects:
