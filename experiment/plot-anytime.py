@@ -550,7 +550,7 @@ def get_all_sol_times(incumbent_sols):
         
 def get_label(alg, argval, extra, dataset, cost):
     argval = str(argval)
-    if alg in ["beam", "beam-h", "bead"]:
+    if alg in ["beam", "beam-h", "bead", "thresholdbead"]:
         if cost == "unit":
             label = "bead"+"-"+argval
         else:
@@ -635,13 +635,17 @@ if __name__ == "__main__":
 
     #slopes = ["500"]
     #aspects = ["1", "100", "200", "500"]
+    widths = [30, 100, 300, 1000]
+    thresholds = [0.15, 0.3, 0.45, 0.6]
     aspects = [1, 500]
     ks = [2, 3, 5]
 
     alg_dict = {
         ("tiles", "heavy"): [
-            ("rectangle", "aspect", aspects, True),
-            ("outstanding", "k", ks, True)
+            ("bead", "width", widths, True),
+            ("thresholdbead", "threshold", thresholds, True)
+            #("rectangle", "aspect", aspects, True),
+            #("outstanding", "k", ks, True)
         ]
     }
 

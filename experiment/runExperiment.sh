@@ -3,7 +3,7 @@
 #SBATCH --mail-type=END                      # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=bryan.mckenney@unh.edu   # Where to send mail	                          
 #SBATCH --ntasks=1                           # Run 1 task per node
-#SBATCH --array=1-300                        # Array range
+#SBATCH --array=1-800                        # Array range
 #SBATCH --no-kill
 #SBATCH -p compute
 #SBATCH -o ./slurmOutput/%a.out

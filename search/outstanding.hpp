@@ -64,11 +64,11 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 	struct DepthNode {
 		int heapind;
 		DepthNode *next;
-		int depth, dBest;
+		int depth, dBest, expansions;
 		OpenList<Node, Node, double> *openlist;
   
 		DepthNode(int depth) : heapind(-1), next(NULL), depth(depth),
-			dBest(std::numeric_limits<int>::max()), openlist(new OpenList<Node, Node, double>()) {}
+			dBest(std::numeric_limits<int>::max()), expansions(0), openlist(new OpenList<Node, Node, double>()) {}
 
 		~DepthNode() {
 			delete openlist;
@@ -111,8 +111,11 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 			Node *bBestNode = b->openlist->front();
 			if (!aBestNode) return false;
 			if (!bBestNode) return true;
-			if (aBestNode->discrep == bBestNode->discrep)
-				return a->depth < b->depth;
+			if (aBestNode->discrep == bBestNode->discrep) {
+				//if (a->expansions == b->expansions)
+					return a->depth < b->depth;
+				//return a->expansions < b->expansions;
+			}
 			return aBestNode->discrep < bBestNode->discrep;
 		}
 
@@ -244,6 +247,7 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 					fprintf(stderr, ",%f\n", (float)n->g);
 				}
 				expand(d, n, state, bestDepth->next);
+				bestDepth->expansions++;
 				
 				done = false;
 			}

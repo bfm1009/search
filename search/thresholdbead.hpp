@@ -110,7 +110,7 @@ template <class D> struct ThresholdBeadSearch : public SearchAlgorithm<D> {
 				int d_n = n->d;
 				if (d_best == INT_MAX) d_best = d_n;
 				double discrepScore = (d_n - d_best) * 1.0 / d_best;
-				if (d_n > 0 && (d_best == 0 || discrepScore > threshold)) break; // Stop adding nodes to beam when the d of one exceeds threshold from best
+				if (discrepScore > threshold) break; // Stop adding nodes to beam when the d of one exceeds threshold from best
 				//if (d_n - d_best > threshold) break;
 
 				unsigned long hash = n->state.hash(&d);
@@ -225,7 +225,7 @@ private:
 	Node *init(D &d, State &s0) {
 		Node *n0 = nodes->construct();
 		d.pack(n0->state, s0);
-		n0->d = 0;
+		n0->d = d.d(s0);
 		n0->g = Cost(0);
 		n0->f = d.h(s0);
 		n0->pop = n0->op = D::Nop;
