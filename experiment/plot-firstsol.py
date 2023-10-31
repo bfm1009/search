@@ -2,6 +2,7 @@ import sys
 import utils
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import numpy as np
 
 def plot(domain, cst, algs, nInst=100, startInst=1):
 
@@ -19,6 +20,7 @@ def plot(domain, cst, algs, nInst=100, startInst=1):
     algXdata = defaultdict(list)
     algYdata = defaultdict(list)
     for alg, arg, argvals, dups, *extra in algs:
+        algValidData = []
         extra = tuple(extra)
         algkey = (alg, dups, extra)
         for argval in argvals:
@@ -27,6 +29,19 @@ def plot(domain, cst, algs, nInst=100, startInst=1):
             # Grabs data to be plotted and averages across all instances.
             xList = xdata[key]
             yList = ydata[key]
+
+            # Remove data points where no solution found
+            nosol = []
+            for i in range(len(yList)):
+                y = yList[i]
+                if y <= 0:
+                    nosol.append(i)
+            if len(nosol) > 0:
+                xList = np.delete(xList, nosol)
+                yList = np.delete(yList, nosol)
+                print(f"Deleted {len(nosol)} bad data points for {alg}-{argval}")
+            
+            algValidData.append(len(xList))
             algXdata[algkey] += [sum(xList)/len(xList)]
             algYdata[algkey] += [sum(yList)/len(yList)]
 
@@ -35,6 +50,8 @@ def plot(domain, cst, algs, nInst=100, startInst=1):
         
         # Add marks at each data point for the current algorithm.
         plt.scatter(algXdata[algkey], algYdata[algkey])
+        plt.scatter(algXdata[algkey], algYdata[algkey], marker='o', facecolors="none", edgecolors='r', s=[(1 - (n / nInst)) * 1000 for n in algValidData])
+        plt.scatter(algXdata[algkey], algYdata[algkey], marker='o', facecolors="none", edgecolors='grey', s=[1000 if n < nInst else 0 for n in algValidData], linestyle="--")
 
         # Label each point with its argval if this algorithm takes an argument
         for i, argval in enumerate(argvals):
