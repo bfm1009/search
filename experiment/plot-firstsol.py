@@ -74,10 +74,14 @@ if __name__ == "__main__":
     nInst = utils.domain_instances[domain]
     widths = [30, 100, 300, 1000]
     thresholds = [0.15, 0.3, 0.45, 0.6]
+    ks = [2, 3, 5]
 
     # List of algorithms and their parameters.
-    algs = [("bead","width",widths,True),
-            ("thresholdbead","threshold",thresholds,True)]
+    algs = [
+        ("bead","width",widths,True),
+        #("thresholdbead","threshold",thresholds,True),
+        ("outstanding","k",ks,True)
+    ]
 
     # Plots for each algorithm.
     plot(domain, cst, algs, nInst=nInst, startInst=startInst)
