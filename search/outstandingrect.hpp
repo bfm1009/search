@@ -202,58 +202,31 @@ template <class D> struct OutstandingRectSearch : public SearchAlgorithm<D> {
 
 		dfrowhdr(stdout, "incumbent", 5, "num", "nodes expanded",
 			"nodes generated", "solution cost", "wall time");
-
-		bool done = false;
     
-		while (!done && !SearchAlgorithm<D>::limit()) {
-			done = true;
-			Node *n = NULL;
-			DepthNode *bestDepth;
-			OpenList<Node, Node, double> *open;
+		while (!SearchAlgorithm<D>::limit()) {
+			DepthNode *curDepth = openlists.frontUnsafe();
 
-			/*std::vector<DepthNode*> data = openlists.data();
-			cout << depth << " ";
-			for (long unsigned int i = 0; i < data.size(); i++) {
-				DepthNode *node = data[i];
-				if (!node->openlist->empty())
-					cout << "[depth: " << node->depth << ", size: " << node->openlist->size() << ", bestDiscrep: " << (node->openlist->front()->discrep) << ", heapind: " << node->heapind << "] ";
-				else cout << ".";
+			// End search if search space has been exhausted
+			if (curDepth->openlist->empty()) break;
+
+			// Expand nodes until new depth
+			while (curDepth->next) {
+				expandBestNodeAtDepth(d, curDepth);
+				curDepth = curDepth->next;
 			}
-			cout << endl;*/
-				  
-			do {
-				bestDepth = openlists.frontUnsafe();
-				open = bestDepth->openlist;
-				if (open->empty()) break;
-				//cout << "best depth to expand from is " << bestDepth->depth << " | discrep: " << open->front()->discrep << endl;
-				n = dedup(d, open->pop());
-				openlists.update(bestDepth->heapind);
-				open_count--;
-			} while (!n);
 
-			// Allow starting at locked depth if no other choice
-			if (bestDepth == lockedDepth)
-				addDepthLevel();
+			// Expand nodes at new depth
+			addDepthLevel();
 
-			if (n) {
-				State buf, &state = d.unpack(buf, n->state);
-				if(dump) {
-					fprintf(stderr, "%d,%lu,", bestDepth->depth,
-						SearchAlgorithm<D>::res.expd);
-					d.dumpstate(stderr, state);
-					fprintf(stderr, ",%f\n", (float)n->g);
-				}
-				expand(d, n, state, bestDepth->next);
-				bestDepth->expansions++;
-				
-				done = false;
+			for (int i = 0; i < curDepth->depth - 1; i++) {
+				expandBestNodeAtDepth(d, curDepth);
+				if (curDepth->openlist->empty()) break;
 			}
 		}
 
-		if(cand) {
+		if(cand)
 		  solpath<D, Node>(d, cand, this->res);
-		  done = true;
-		}
+
 		this->finish();
 	}
 
@@ -274,6 +247,29 @@ template <class D> struct OutstandingRectSearch : public SearchAlgorithm<D> {
 
 
 private:
+
+    void expandBestNodeAtDepth(D &d, DepthNode *depthLevel) {
+		Node *n = NULL;
+		OpenList<Node, Node, double> *open = depthLevel->openlist;
+		
+		while (!n && !open->empty()) {
+			n = dedup(d, open->pop());
+			openlists.update(depthLevel->heapind);
+			open_count--;
+		}
+
+		if (n) {
+			State buf, &state = d.unpack(buf, n->state);
+			if(dump) {
+				fprintf(stderr, "%d,%lu,", depthLevel->depth,
+					SearchAlgorithm<D>::res.expd);
+				d.dumpstate(stderr, state);
+				fprintf(stderr, ",%f\n", (float)n->g);
+			}
+			expand(d, n, state, depthLevel->next);
+			depthLevel->expansions++;
+		}
+    }
 
   void expand(D &d, Node *n, State &state, DepthNode *nextDepth) {
 		//cout << "expanding node at depth " << nextDepth->depth - 1 << endl;
