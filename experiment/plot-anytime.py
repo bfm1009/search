@@ -24,9 +24,9 @@ warnings.filterwarnings("ignore", message="Attempting to set identical bottom ==
 warnings.filterwarnings("ignore", message="The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.")
 warnings.filterwarnings("ignore")
 
-def makeSection(doc, domain, dataset, cost, algs, dup, save, nInst=100, beams=False):
+def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nInst=100, beams=False):
     
-    data = utils.read_data("results", dataset, cost, algs, dup, 1, nInst)
+    data = utils.read_data(resultsFolder, dataset, cost, algs, dup, 1, nInst)
     costs = data.costs
     times = data.cpu_times
     sol_lengths = data.sol_lengths
@@ -584,8 +584,14 @@ def sol_quality(sol_cost, best_cost):
 if __name__ == "__main__":
 
     save = False
-    if len(sys.argv) > 1 and "-save" in sys.argv:
-        save = True
+    resultsFolder = ""
+    if len(sys.argv) - 1 < 1:
+        print("usage: python3 plot-anytime.py [resultsFolder] <-save>")
+        exit()
+    else:
+        resultsFolder = sys.argv[1]
+        if "-save" in sys.argv:
+            save = True
     
     doc = Document('plots')
 
@@ -639,14 +645,18 @@ if __name__ == "__main__":
     thresholds = [0.15, 0.3, 0.45, 0.6]
     aspects = [1, 500]
     ks = [2, 3, 5]
+    algs = [
+        #("bead", "width", widths, True),
+        #("thresholdbead", "threshold", thresholds, True)
+        ("rectangle", "aspect", aspects, True),
+        ("outstanding", "k", ks, True),
+        ("outstandingrect", "", [""], True)
+    ]
 
     alg_dict = {
-        ("tiles", "heavy"): [
-            ("bead", "width", widths, True),
-            ("thresholdbead", "threshold", thresholds, True)
-            #("rectangle", "aspect", aspects, True),
-            #("outstanding", "k", ks, True)
-        ]
+        ("tiles", "unit"): algs,
+        ("tiles", "inv"): algs,
+        ("tiles", "heavy"): algs
     }
 
 
@@ -660,7 +670,7 @@ if __name__ == "__main__":
 
     for domain, dataset in domains:
         widths = utils.domain_widths[domain][3:]
-        costs = ["heavy"] #utils.costs[domain]
+        costs = ["unit", "inv", "heavy"] #utils.costs[domain]
         nInst = utils.domain_instances[domain]
         print(dataset)
 
@@ -670,7 +680,7 @@ if __name__ == "__main__":
             
             print(dataset + " " + cost + " (dup reopening)")
 
-            makeSection(doc, domain, dataset, cost, algs_reopen, True, save, nInst)
+            makeSection(resultsFolder, doc, domain, dataset, cost, algs_reopen, True, save, nInst)
             
     doc.generate_pdf('plots-anytime', clean_tex=False)
 
