@@ -636,8 +636,9 @@ if __name__ == "__main__":
 
     domains = [
         #("tiles", "tiles")
-        ("gridscenario", "64room"),
-        ("gridscenario", "orz100d")
+        #("gridscenario", "64room"),
+        #("gridscenario", "orz100d"),
+        ("vacuum", "vacuum")
     ]
 
     #slopes = ["500"]
@@ -659,7 +660,9 @@ if __name__ == "__main__":
         ("tiles", "inv"): algs,
         ("tiles", "heavy"): algs,
         ("64room", "unit"): algs,
-        ("orz100d", "unit"): algs
+        ("orz100d", "unit"): algs,
+        ("vacuum", "unit"): algs,
+        ("vacuum", "heavy"): algs
     }
 
 
@@ -673,7 +676,7 @@ if __name__ == "__main__":
 
     for domain, dataset in domains:
         #widths = utils.domain_widths[domain][3:]
-        costs = ["unit"] #["unit", "inv", "heavy"] #utils.costs[domain]
+        costs = ["unit", "heavy"] #["unit", "inv", "heavy"] #utils.costs[domain]
         nInst = utils.domain_instances[domain]
         print(dataset)
 
