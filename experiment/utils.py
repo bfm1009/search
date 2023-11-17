@@ -199,7 +199,7 @@ def read_data(results_dir, domain, cst, algs, dup, startInst=1, nInst=100):
                     
                 key = (alg, argval, dups, extra)
                 underscore = "_" if arg != "" else ""
-                filename = f"{results_dir}/{domain}_{file}_{cst}_{alg}{underscore}{arg}{argval}" #results_dir+"/"+domain+"/"+str(file)+alg+dupString+arg+str(argval)+"-"+cst+extra_opt+extra_val
+                filename = f"{results_dir}/{domain}/{domain}_{file}_{cst}_{alg}{underscore}{arg}{argval}" #results_dir+"/"+domain+"/"+str(file)+alg+dupString+arg+str(argval)+"-"+cst+extra_opt+extra_val
                 infile = open(filename, "r")
                 lines = infile.readlines()
                 if init_h is None:

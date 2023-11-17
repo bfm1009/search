@@ -603,11 +603,6 @@ if __name__ == "__main__":
     except:
         pass
 
-
-    domains = [
-        ("tiles", "tiles")
-    ]
-
     # ALL DOMAINS
     """
     domains = [
@@ -639,6 +634,12 @@ if __name__ == "__main__":
     ]
     """
 
+    domains = [
+        #("tiles", "tiles")
+        ("gridscenario", "64room"),
+        ("gridscenario", "orz100d")
+    ]
+
     #slopes = ["500"]
     #aspects = ["1", "100", "200", "500"]
     widths = [30, 100, 300, 1000]
@@ -656,7 +657,9 @@ if __name__ == "__main__":
     alg_dict = {
         ("tiles", "unit"): algs,
         ("tiles", "inv"): algs,
-        ("tiles", "heavy"): algs
+        ("tiles", "heavy"): algs,
+        ("64room", "unit"): algs,
+        ("orz100d", "unit"): algs
     }
 
 
@@ -669,8 +672,8 @@ if __name__ == "__main__":
 
 
     for domain, dataset in domains:
-        widths = utils.domain_widths[domain][3:]
-        costs = ["unit", "inv", "heavy"] #utils.costs[domain]
+        #widths = utils.domain_widths[domain][3:]
+        costs = ["unit"] #["unit", "inv", "heavy"] #utils.costs[domain]
         nInst = utils.domain_instances[domain]
         print(dataset)
 
