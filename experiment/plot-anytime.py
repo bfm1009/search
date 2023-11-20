@@ -635,27 +635,32 @@ if __name__ == "__main__":
     """
 
     domains = [
-        #("tiles", "tiles")
-        #("gridscenario", "64room"),
-        #("gridscenario", "orz100d"),
+        ("tiles", "tiles")
+        ("gridscenario", "64room"),
+        ("gridscenario", "orz100d"),
         ("vacuum", "vacuum")
     ]
+    costs_dict = {
+        "tiles": ["unit", "inv", "heavy"],
+        "gridscenario": ["unit"],
+        "vacuum": ["unit", "heavy"]
+    }
 
     #slopes = ["500"]
     #aspects = ["1", "100", "200", "500"]
     widths = [30, 100, 300, 1000]
-    thresholds = [0.15, 0.3, 0.45, 0.6]
+    thresholds = [2, 4, 6]
     aspects = [1, 500]
-    ks = [2, 3, 5]
+    ks = [2, 4, 6]
     algs = [
-        #("bead", "width", widths, True),
-        #("thresholdbead", "threshold", thresholds, True)
+        ("bead", "width", widths, True),
+        ("thresholdbead", "threshold", thresholds, True)
         ("rectangle", "aspect", aspects, True),
         ("outstanding", "k", ks, True),
-        ("outstandingrect", "", [""], True)
+        ("outstandingrect", "aspect", aspects, True)
     ]
 
-    alg_dict = {
+    '''alg_dict = {
         ("tiles", "unit"): algs,
         ("tiles", "inv"): algs,
         ("tiles", "heavy"): algs,
@@ -663,7 +668,7 @@ if __name__ == "__main__":
         ("orz100d", "unit"): algs,
         ("vacuum", "unit"): algs,
         ("vacuum", "heavy"): algs
-    }
+    }'''
 
 
     #alg_dict = plot_configs.alg_dict_depth_firsts
@@ -676,13 +681,13 @@ if __name__ == "__main__":
 
     for domain, dataset in domains:
         #widths = utils.domain_widths[domain][3:]
-        costs = ["unit", "heavy"] #["unit", "inv", "heavy"] #utils.costs[domain]
+        costs = costs_dict[domain] #utils.costs[domain]
         nInst = utils.domain_instances[domain]
         print(dataset)
 
         for cost in costs:
 
-            algs_reopen = alg_dict[(dataset, cost)]
+            algs_reopen = algs#alg_dict[(dataset, cost)]
             
             print(dataset + " " + cost + " (dup reopening)")
 

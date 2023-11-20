@@ -123,7 +123,7 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		/* Calculate the discrepancy score of a node. */
 		static void calcDiscrep(void *dBestPtr, Node *n) {
 			int dBest = *((int*) dBestPtr);
-			n->discrep = (n->d - dBest) * 1.0 / dBest;
+			n->discrep = n->d - dBest;
 		}
 	};
   
@@ -132,14 +132,14 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		SearchAlgorithm<D>(argc, argv), closed(30000001) {
 		dropdups = false;
 		dump = false;
-		k = 1;
+		k = 2;
 
 		for (int i = 0; i < argc; i++) {
 			if (strcmp(argv[i], "-dropdups") == 0)
 				dropdups = true;
 			if (strcmp(argv[i], "-dump") == 0)
 				dump = true;
-			if (strcmp(argv[i], "-k") == 0)
+			if (i < argc - 1 && strcmp(argv[i], "-k") == 0)
 				k = atoi(argv[++i]);
 		}
     

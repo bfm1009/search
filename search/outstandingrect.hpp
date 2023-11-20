@@ -123,7 +123,7 @@ template <class D> struct OutstandingRectSearch : public SearchAlgorithm<D> {
 		/* Calculate the discrepancy score of a node. */
 		static void calcDiscrep(void *dBestPtr, Node *n) {
 			int dBest = *((int*) dBestPtr);
-			n->discrep = (n->d - dBest) * 1.0 / dBest;
+			n->discrep = n->d - dBest;
 		}
 	};
   
@@ -132,12 +132,15 @@ template <class D> struct OutstandingRectSearch : public SearchAlgorithm<D> {
 		SearchAlgorithm<D>(argc, argv), closed(30000001) {
 		dropdups = false;
 		dump = false;
+		aspect = 1;
 
 		for (int i = 0; i < argc; i++) {
 			if (strcmp(argv[i], "-dropdups") == 0)
 				dropdups = true;
 			if (strcmp(argv[i], "-dump") == 0)
 				dump = true;
+			if (i < argc - 1 && strcmp(argv[i], "-aspect") == 0)
+				aspect = atoi(argv[++i]);
 		}
     
 		nodes = new Pool<Node>();
@@ -196,6 +199,7 @@ template <class D> struct OutstandingRectSearch : public SearchAlgorithm<D> {
 		depth = 0;
 		open_count = 0;
 		sol_count = 0;
+		iteration = 1;
 		addDepthLevel();
 		expand(d, n0, s0, lockedDepth);
 		addDepthLevel();
@@ -215,13 +219,19 @@ template <class D> struct OutstandingRectSearch : public SearchAlgorithm<D> {
 				curDepth = curDepth->next;
 			}
 
-			// Expand nodes at new depth
-			addDepthLevel();
+			// Expand nodes at new depths
+			for (int i = 0; i < aspect; i++) {
+				addDepthLevel();
 
-			for (int i = 0; i < curDepth->depth - 1; i++) {
-				expandBestNodeAtDepth(d, curDepth);
-				if (curDepth->openlist->empty()) break;
+				for (int j = 0; j < iteration; j++) {
+					expandBestNodeAtDepth(d, curDepth);
+					if (curDepth->openlist->empty()) break;
+				}
+
+				curDepth = curDepth->next;
 			}
+
+			iteration++;
 		}
 
 		if(cand)
@@ -365,6 +375,8 @@ private:
 		depth++;
 	}
 
+	int aspect;
+	int iteration;
     bool dropdups;
     bool dump;
     BinHeap<DepthNode, DepthNode*> openlists;
