@@ -48,11 +48,11 @@ for domain in domains:
             for instance in range(1, 101):
                 # Bead search
                 for width in widths:
-                    f.write(f"{solver} bead -width {width} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{domain}/{domain}_{instance}_{cost}_bead_width{width}\n")
+                    f.write(f"{solver} bead -width {width} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{instanceType}/{instanceType}_{instance}_{cost}_bead_width{width}\n")
                 
                 # Threshold bead search
                 for threshold in thresholds:
-                    f.write(f"{solver} thresholdbead -threshold {threshold} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{domain}/{domain}_{instance}_{cost}_thresholdbead_threshold{threshold}\n")
+                    f.write(f"{solver} thresholdbead -threshold {threshold} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{instanceType}/{instanceType}_{instance}_{cost}_thresholdbead_threshold{threshold}\n")
                 
                 for aspect in aspects:
                     # Rectangle search
