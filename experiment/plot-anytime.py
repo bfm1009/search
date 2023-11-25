@@ -635,10 +635,10 @@ if __name__ == "__main__":
     """
 
     domains = [
-        ("tiles", "tiles")
+        #("tiles", "tiles"),
         ("gridscenario", "64room"),
         ("gridscenario", "orz100d"),
-        ("vacuum", "vacuum")
+        #("vacuum", "vacuum")
     ]
     costs_dict = {
         "tiles": ["unit", "inv", "heavy"],
@@ -653,8 +653,8 @@ if __name__ == "__main__":
     aspects = [1, 500]
     ks = [2, 4, 6]
     algs = [
-        ("bead", "width", widths, True),
-        ("thresholdbead", "threshold", thresholds, True)
+        #("bead", "width", widths, True),
+        #("thresholdbead", "threshold", thresholds, True),
         ("rectangle", "aspect", aspects, True),
         ("outstanding", "k", ks, True),
         ("outstandingrect", "aspect", aspects, True)

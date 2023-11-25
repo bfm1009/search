@@ -175,7 +175,7 @@ except:
             self.init_h = []
             self.nInst = 100
     
-def read_data(results_dir, domain, cst, algs, dup, startInst=1, nInst=100):
+def read_data(results_dir, domain, cst, algs, dup, startInst=1, nInst=100, firstSol=False):
     data = Data(nInst=nInst)
     for i in range(startInst, startInst+nInst):
         file = str(i)
@@ -225,9 +225,9 @@ def read_data(results_dir, domain, cst, algs, dup, startInst=1, nInst=100):
                     incumbent_sols = get_incumbent_sols(sol_lines)
                     num_sol = len(sol_lines)
                     cost_lines = [x for x in lines if "final sol cost" in x]
-                    #if len(incumbent_sols) > 0:
-                    #    cost = incumbent_sols[0].cost # first solution
-                    if len(cost_lines) > 0:
+                    if firstSol and len(incumbent_sols) > 0:
+                        cost = incumbent_sols[0].cost # first solution
+                    elif len(cost_lines) > 0:
                         cost_line = cost_lines[0]
                         cost = float(cost_line.split("\"")[3])
                     elif len(incumbent_sols) > 0:
