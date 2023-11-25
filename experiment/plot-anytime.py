@@ -550,7 +550,7 @@ def get_all_sol_times(incumbent_sols):
         
 def get_label(alg, argval, extra, dataset, cost):
     argval = str(argval)
-    if alg in ["beam", "beam-h", "bead", "thresholdbead"]:
+    if alg in ["beam", "beam-h", "bead"]:
         if cost == "unit":
             label = "bead"+"-"+argval
         else:
@@ -561,9 +561,7 @@ def get_label(alg, argval, extra, dataset, cost):
         label = "ARA*"+"(w={5,3,2,1.5,1})"
     elif alg == "triangle" and argval != "":
         label = alg+"("+argval+")"
-    elif alg == "rectangle":
-        label = alg+"-"+argval
-    elif alg == "outstanding":
+    elif alg in ["thresholdbead", "rectangle", "outstanding", "outstandingrect"]:
         label = alg+"-"+argval
     elif alg == "cab":
         label = "CABS"
@@ -636,9 +634,9 @@ if __name__ == "__main__":
 
     domains = [
         #("tiles", "tiles"),
-        ("gridscenario", "64room"),
-        ("gridscenario", "orz100d"),
-        #("vacuum", "vacuum")
+        #("gridscenario", "64room"),
+        #("gridscenario", "orz100d"),
+        ("vacuum", "vacuum")
     ]
     costs_dict = {
         "tiles": ["unit", "inv", "heavy"],
@@ -653,8 +651,8 @@ if __name__ == "__main__":
     aspects = [1, 500]
     ks = [2, 4, 6]
     algs = [
-        #("bead", "width", widths, True),
-        #("thresholdbead", "threshold", thresholds, True),
+        ("bead", "width", widths, True),
+        ("thresholdbead", "threshold", thresholds, True),
         ("rectangle", "aspect", aspects, True),
         ("outstanding", "k", ks, True),
         ("outstandingrect", "aspect", aspects, True)
@@ -693,7 +691,7 @@ if __name__ == "__main__":
 
             makeSection(resultsFolder, doc, domain, dataset, cost, algs_reopen, True, save, nInst)
             
-    doc.generate_pdf('plots-anytime', clean_tex=False)
+    doc.generate_pdf('plots/plots-anytime', clean_tex=True)
 
 
 
