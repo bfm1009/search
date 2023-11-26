@@ -50,11 +50,12 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
     
     plotWidth = "1.75in"
 
-    cmap = plt.get_cmap("tab20")
+    cmap = plt.get_cmap("tab20c") #plt.get_cmap("tab20")
 
     algColors = {}
     algDashes = {}
-    count = 4
+    algOffset = 0
+    argvalOffset = 0
     for alg, arg, argvals, dups, *extra in algs:
         extra = tuple(extra)
         for argval in argvals:
@@ -81,9 +82,11 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
                 algColors[key] = cmap(0)
                 algDashes[key] = dash_list[0]
             else:
-                algColors[key] = cmap(count)
-                algDashes[key] = dash_list[count]
-                count += 1
+                algColors[key] = cmap(algOffset + (3 - argvalOffset))
+                algDashes[key] = dash_list[1 if argvalOffset == 0 else 0 if argvalOffset == 1 else argvalOffset]
+                argvalOffset += 1
+        algOffset += 4
+        argvalOffset = 0
     
     time_data = get_all_sol_times(incumbent_sols)
 
@@ -634,9 +637,9 @@ if __name__ == "__main__":
 
     domains = [
         #("tiles", "tiles"),
-        #("gridscenario", "64room"),
-        #("gridscenario", "orz100d"),
-        ("vacuum", "vacuum")
+        ("gridscenario", "64room"),
+        ("gridscenario", "orz100d"),
+        #("vacuum", "vacuum")
     ]
     costs_dict = {
         "tiles": ["unit", "inv", "heavy"],
@@ -651,8 +654,8 @@ if __name__ == "__main__":
     aspects = [1, 500]
     ks = [2, 4, 6]
     algs = [
-        ("bead", "width", widths, True),
-        ("thresholdbead", "threshold", thresholds, True),
+        #("bead", "width", widths, True),
+        #("thresholdbead", "threshold", thresholds, True),
         ("rectangle", "aspect", aspects, True),
         ("outstanding", "k", ks, True),
         ("outstandingrect", "aspect", aspects, True)
