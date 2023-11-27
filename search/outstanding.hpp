@@ -189,11 +189,12 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		closed.add(n0);
 		
 		if(dump) {
-		  fprintf(stderr, "depth,expnum,state,g\n");
+		  //fprintf(stderr, "depth,expnum,state,g\n");
+		  fprintf(stderr, "depth,expnum,d\n");
 		  fprintf(stderr, "0,%lu,", SearchAlgorithm<D>::res.expd);
-		  State buf, &state = d.unpack(buf, n0->state);
-		  d.dumpstate(stderr, state);
-		  fprintf(stderr, ",%f\n", (float)n0->g);
+		  //State buf, &state = d.unpack(buf, n0->state);
+		  //d.dumpstate(stderr, state);
+		  fprintf(stderr, "%d\n", n0->d);
 		}
 
 		depth = 0;
@@ -240,11 +241,11 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 
 			if (n) {
 				State buf, &state = d.unpack(buf, n->state);
-				if(dump) {
+				if (dump) {
 					fprintf(stderr, "%d,%lu,", bestDepth->depth,
 						SearchAlgorithm<D>::res.expd);
-					d.dumpstate(stderr, state);
-					fprintf(stderr, ",%f\n", (float)n->g);
+					//d.dumpstate(stderr, state);
+					fprintf(stderr, "%d\n", n->d);
 				}
 				expand(d, n, state, bestDepth->next);
 				bestDepth->expansions++;
@@ -324,11 +325,11 @@ private:
 		State buf, &kstate = d.unpack(buf, kid->state);
 		if (d.isgoal(kstate) && (!cand || kid->g < cand->g)) {
 		  
-		  if(dump) {
-			fprintf(stderr, "%d,%lu,", nextDepth->depth - 1,
+		  if (dump) {
+			fprintf(stderr, "%d,%lu,", nextDepth->depth,
 					SearchAlgorithm<D>::res.expd);
-			d.dumpstate(stderr, kstate);
-			fprintf(stderr, ",%f\n", (float)kid->g);
+			//d.dumpstate(stderr, kstate);
+			fprintf(stderr, "%d\n", kid->d);
 		  }
 		
 		  cand = kid;

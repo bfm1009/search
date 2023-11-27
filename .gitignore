@@ -56,6 +56,7 @@ unknowngridnav/watch
 experiment/results
 experiment/slurmOutput
 experiment/plots
+experiment/dumps
 instances
 __pycache__
 
