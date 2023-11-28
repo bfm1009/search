@@ -5,7 +5,7 @@ import sys
 f = open(f"commands.run", "w")
 
 outputFolder = "results/exp3"
-domains = ["tiles", "vacuum", "gridscenario"]
+domains = ["pancake"] #["tiles", "vacuum", "gridscenario"]
 widths = [30, 100, 300, 1000]
 thresholds = [2, 4, 6]
 aspects = [1, 500]
@@ -13,10 +13,10 @@ ks = [2, 4, 6]
 
 for domain in domains:
     # tiles or vacuum
-    if domain == "tiles" or domain == "vacuum":
+    if domain == "tiles" or domain == "vacuum" or domain == "pancake":
         costs = ["unit", "inv", "heavy"] if domain == "tiles" else ["unit", "heavy"]
-        solver = "../tiles/15md_solver" if domain == "tiles" else "../vacuum/vacuum_solver"
-        instancesDir = "korf100" if domain == "tiles" else "vacuum-200-200-10"
+        solver = "../tiles/15md_solver" if domain == "tiles" else "../vacuum/vacuum_solver" if domain == "vacuum" else "../pancake/70pancake_solver"
+        instancesDir = "korf100" if domain == "tiles" else "vacuum-200-200-10" if domain == "vacuum" else "70pancake"
 
         for instance in range(1, 101):
             for cost in costs:
