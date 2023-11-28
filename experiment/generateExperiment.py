@@ -4,65 +4,35 @@ import sys
 
 f = open(f"commands.run", "w")
 
+memGB = 7.5
+time = 300
+nInsts = 100
 outputFolder = "results/exp3"
-domains = ["pancake"] #["tiles", "vacuum", "gridscenario"]
-widths = [30, 100, 300, 1000]
-thresholds = [2, 4, 6]
-aspects = [1, 500]
-ks = [2, 4, 6]
+domains = [
+    ("tiles", ["unit", "inv", "heavy"], "../tiles/15md_solver", "korf100"),
+    ("vacuum", ["unit", "heavy"], "../vacuum/vacuum_solver", "vacuum-200-200-10"),
+    ("pancake", ["unit", "heavy"], "../pancake/70pancake_solver", "70pancake"),
+    ("orz100d", ["unit"], "../gridnav/scenario_solver", "orz100d"),
+    ("64room", ["unit"], "../gridnav/scenario_solver", "64room")
+]
+algs = [
+    ("bead", "width", [30, 100, 300, 1000]),
+    ("thresholdbead", "threshold", [2, 4, 6]),
+    ("rectangle", "aspect", [1, 500]),
+    ("outstandingrect", "aspect", [1, 500]),
+    ("outstanding", "k", [2, 4, 6])
+]
 
-for domain in domains:
-    # tiles or vacuum
-    if domain == "tiles" or domain == "vacuum" or domain == "pancake":
-        costs = ["unit", "inv", "heavy"] if domain == "tiles" else ["unit", "heavy"]
-        solver = "../tiles/15md_solver" if domain == "tiles" else "../vacuum/vacuum_solver" if domain == "vacuum" else "../pancake/70pancake_solver"
-        instancesDir = "korf100" if domain == "tiles" else "vacuum-200-200-10" if domain == "vacuum" else "70pancake"
-
-        for instance in range(1, 101):
-            for cost in costs:
-                # Bead search
-                for width in widths:
-                    f.write(f"{solver} bead -width {width} -cost {cost} -mem 7.5G -walltime 300 < instances/{instancesDir}/{instance} > ./{outputFolder}/{domain}/{domain}_{instance}_{cost}_bead_width{width}\n")
-                
-                # Threshold bead search
-                for threshold in thresholds:
-                    f.write(f"{solver} thresholdbead -threshold {threshold} -cost {cost} -mem 7.5G -walltime 300 < instances/{instancesDir}/{instance} > ./{outputFolder}/{domain}/{domain}_{instance}_{cost}_thresholdbead_threshold{threshold}\n")
-
-                for aspect in aspects:
-                    # Rectangle search
-                    f.write(f"{solver} rectangle -aspect {aspect} -cost {cost} -mem 7.5G -walltime 300 < instances/{instancesDir}/{instance} > ./{outputFolder}/{domain}/{domain}_{instance}_{cost}_rectangle_aspect{aspect}\n")
-
-                    # Outstanding rectangle search
-                    f.write(f"{solver} outstandingrect -aspect {aspect} -cost {cost} -mem 7.5G -walltime 300 < instances/{instancesDir}/{instance} > ./{outputFolder}/{domain}/{domain}_{instance}_{cost}_outstandingrect_aspect{aspect}\n")
-                
-                # Outstanding search
-                for k in ks:
-                    f.write(f"{solver} outstanding -k {k} -cost {cost} -mem 7.5G -walltime 300 < instances/{instancesDir}/{instance} > ./{outputFolder}/{domain}/{domain}_{instance}_{cost}_outstanding_k{k}\n")
-    # gridscenario
-    elif domain == "gridscenario":
-        cost = "unit"
-        solver = "../gridnav/scenario_solver"
-        instanceTypes = ["orz100d", "64room"]
-
-        for instanceType in instanceTypes:
-            for instance in range(1, 101):
-                # Bead search
-                for width in widths:
-                    f.write(f"{solver} bead -width {width} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{instanceType}/{instanceType}_{instance}_{cost}_bead_width{width}\n")
-                
-                # Threshold bead search
-                for threshold in thresholds:
-                    f.write(f"{solver} thresholdbead -threshold {threshold} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{instanceType}/{instanceType}_{instance}_{cost}_thresholdbead_threshold{threshold}\n")
-                
-                for aspect in aspects:
-                    # Rectangle search
-                    f.write(f"{solver} rectangle -aspect {aspect} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{instanceType}/{instanceType}_{instance}_{cost}_rectangle_aspect{aspect}\n")
-
-                    # Outstanding rectangle search
-                    f.write(f"{solver} outstandingrect -aspect {aspect} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{instanceType}/{instanceType}_{instance}_{cost}_outstandingrect_aspect{aspect}\n")
-
-                # Outstanding search
-                for k in ks:
-                    f.write(f"{solver} outstanding -k {k} -maproot instances/{instanceType}/ -entry {instance} -mem 7.5G -walltime 300 < instances/{instanceType}/{instanceType}.map.scen > ./{outputFolder}/{instanceType}/{instanceType}_{instance}_{cost}_outstanding_k{k}\n")
+for domain, costs, solver, instancesDir in domains:
+    for instance in range(1, nInsts + 1):
+        for cost in costs:
+            for alg, arg, argvals in algs:
+                for argval in argvals:
+                    if domain == "orz100d" or domain == "64room":
+                        inst = f"-maproot instances/{domain}/ -entry {instance} < instances/{domain}/{domain}.map.scen"
+                    else:
+                        inst = f"< instances/{instancesDir}/{instance}"
+                    
+                    f.write(f"{solver} {alg} -{arg} {argval} -cost {cost} -mem {memGB}G -walltime {time} {inst} > ./{outputFolder}/{domain}/{domain}_{instance}_{cost}_{alg}_{arg}{argval}\n")
 
 f.close()
