@@ -654,7 +654,7 @@ if __name__ == "__main__":
     widths = [30, 100, 300, 1000]
     thresholds = [2, 4, 6]
     aspects = [1, 500]
-    ks = [2, 4, 6]
+    ks = [2, 20, 200, 2000]
     algs = [
         #("bead", "width", widths, True),
         #("thresholdbead", "threshold", thresholds, True),

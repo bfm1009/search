@@ -17,10 +17,10 @@ domains = [
 ]
 algs = [
     ("bead", "width", [30, 100, 300, 1000]),
-    ("thresholdbead", "threshold", [2, 4, 6]),
+    ("thresholdbead", "threshold", [30, 100, 150]),
     ("rectangle", "aspect", [1, 500]),
     ("outstandingrect", "aspect", [1, 500]),
-    ("outstanding", "k", [2, 4, 6])
+    ("outstanding", "k", [20, 200, 2000])
 ]
 
 for domain, costs, solver, instancesDir in domains:

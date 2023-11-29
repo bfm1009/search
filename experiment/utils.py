@@ -225,8 +225,9 @@ def read_data(results_dir, domain, cst, algs, dup, startInst=1, nInst=100, first
                     incumbent_sols = get_incumbent_sols(sol_lines)
                     num_sol = len(sol_lines)
                     cost_lines = [x for x in lines if "final sol cost" in x]
-                    if firstSol and len(incumbent_sols) > 0:
-                        cost = incumbent_sols[0].cost # first solution
+                    if firstSol and len(incumbent_sols) > 0: # first solution
+                        cost = incumbent_sols[0].cost
+                        wall_time = incumbent_sols[0].wall_time
                     elif len(cost_lines) > 0:
                         cost_line = cost_lines[0]
                         cost = float(cost_line.split("\"")[3])
