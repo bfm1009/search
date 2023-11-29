@@ -5,7 +5,7 @@ import tkinter as tk
 import matplotlib.pyplot as plt
 
 SQUARE_SIZE = 2
-WIDTH_IN_SQUARES = 400
+WIDTH_IN_SQUARES = 600
 HEIGHT_IN_SQUARES = 200
 
 # Global variables
@@ -44,7 +44,7 @@ def update(time):
             color = "white"
 
         # Get position of square and recolor it
-        depth = row.depth
+        depth = int(row.depth)
         if inc == -1: nodesAtDepth[depth] += inc
         w = nodesAtDepth[depth]
         h = depth
