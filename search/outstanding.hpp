@@ -190,11 +190,11 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 		
 		if(dump) {
 		  //fprintf(stderr, "depth,expnum,state,g\n");
-		  fprintf(stderr, "depth,expnum,d\n");
+		  fprintf(stderr, "depth,expnum,goal\n");
 		  fprintf(stderr, "0,%lu,", SearchAlgorithm<D>::res.expd);
 		  //State buf, &state = d.unpack(buf, n0->state);
 		  //d.dumpstate(stderr, state);
-		  fprintf(stderr, "%d\n", n0->d);
+		  fprintf(stderr, "%d\n", 0);
 		}
 
 		depth = 0;
@@ -245,7 +245,7 @@ template <class D> struct OutstandingSearch : public SearchAlgorithm<D> {
 					fprintf(stderr, "%d,%lu,", bestDepth->depth,
 						SearchAlgorithm<D>::res.expd);
 					//d.dumpstate(stderr, state);
-					fprintf(stderr, "%d\n", n->d);
+					fprintf(stderr, "%d\n", 0);
 				}
 				expand(d, n, state, bestDepth->next);
 				bestDepth->expansions++;
@@ -329,7 +329,7 @@ private:
 			fprintf(stderr, "%d,%lu,", nextDepth->depth,
 					SearchAlgorithm<D>::res.expd);
 			//d.dumpstate(stderr, kstate);
-			fprintf(stderr, "%d\n", kid->d);
+			fprintf(stderr, "%d\n", 1);
 		  }
 		
 		  cand = kid;

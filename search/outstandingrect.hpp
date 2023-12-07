@@ -189,11 +189,11 @@ template <class D> struct OutstandingRectSearch : public SearchAlgorithm<D> {
 		closed.add(n0);
 		
 		if(dump) {
-		  fprintf(stderr, "depth,expnum,state,g\n");
+		  fprintf(stderr, "depth,expnum,goal\n");
 		  fprintf(stderr, "0,%lu,", SearchAlgorithm<D>::res.expd);
-		  State buf, &state = d.unpack(buf, n0->state);
-		  d.dumpstate(stderr, state);
-		  fprintf(stderr, ",%f\n", (float)n0->g);
+		  //State buf, &state = d.unpack(buf, n0->state);
+		  //d.dumpstate(stderr, state);
+		  fprintf(stderr, "%d\n", 0);
 		}
 
 		depth = 0;
@@ -273,8 +273,8 @@ private:
 			if(dump) {
 				fprintf(stderr, "%d,%lu,", depthLevel->depth,
 					SearchAlgorithm<D>::res.expd);
-				d.dumpstate(stderr, state);
-				fprintf(stderr, ",%f\n", (float)n->g);
+				//d.dumpstate(stderr, state);
+				fprintf(stderr, "%d\n", 0);
 			}
 			expand(d, n, state, depthLevel->next);
 			depthLevel->expansions++;
@@ -324,8 +324,8 @@ private:
 		  if(dump) {
 			fprintf(stderr, "%d,%lu,", nextDepth->depth - 1,
 					SearchAlgorithm<D>::res.expd);
-			d.dumpstate(stderr, kstate);
-			fprintf(stderr, ",%f\n", (float)kid->g);
+			//d.dumpstate(stderr, kstate);
+			fprintf(stderr, "%d\n", 1);
 		  }
 		
 		  cand = kid;

@@ -225,11 +225,11 @@ template <class D> struct RectangleBeadSearch : public SearchAlgorithm<D> {
 		auto last_filled = open_it;
 		
 		if(dump) {
-		  fprintf(stderr, "depth,expnum,state,g\n");
+		  fprintf(stderr, "depth,expnum,goal\n");
 		  fprintf(stderr, "0,%lu,", SearchAlgorithm<D>::res.expd);
-		  State buf, &state = d.unpack(buf, n0->state);
-		  d.dumpstate(stderr, state);
-		  fprintf(stderr, ",%f\n", (float)n0->g);
+		  //State buf, &state = d.unpack(buf, n0->state);
+		  //d.dumpstate(stderr, state);
+		  fprintf(stderr, "%d\n", 0);
 		}
 
 		open_count = 0;
@@ -324,8 +324,8 @@ template <class D> struct RectangleBeadSearch : public SearchAlgorithm<D> {
 			  if(dump) {
 				fprintf(stderr, "%d,%lu,", curr_depth,
 						SearchAlgorithm<D>::res.expd);
-				d.dumpstate(stderr, state);
-				fprintf(stderr, ",%f\n", (float)n->g);
+				//d.dumpstate(stderr, state);
+				fprintf(stderr, "%d\n", 0);
 			  }
 			  expand(d, n, state, curr_depth);
 			}
@@ -396,8 +396,8 @@ private:
 		  if(dump) {
 			fprintf(stderr, "%d,%lu,", curr_depth,
 					SearchAlgorithm<D>::res.expd);
-			d.dumpstate(stderr, kstate);
-			fprintf(stderr, ",%f\n", (float)kid->g);
+			//d.dumpstate(stderr, kstate);
+			fprintf(stderr, "%d\n", 1);
 		  }
 		
 		  cand = kid;
