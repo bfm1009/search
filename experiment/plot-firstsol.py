@@ -53,13 +53,14 @@ def plot(domain, cst, algs, algStyles, nInst=100, startInst=1):
         #for i, argval in enumerate(argvals):
         #    plt.annotate(argval, (algXdata[algkey][i], algYdata[algkey][i]))
 
-        plt.title(f"{domain} ({cst})")
-        plt.xscale("log")
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        
+    plt.title(f"{domain} ({cst})")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.tight_layout()
     plt.legend()
-    plt.savefig(f"plots/{domain}-{cst}.pdf")
+    plt.savefig(f"plots/{domain}-{cst}.pdf", bbox_inches = "tight", pad_inches = 0)
 
 
 if __name__ == "__main__":

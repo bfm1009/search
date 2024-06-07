@@ -24,6 +24,12 @@ warnings.filterwarnings("ignore", message="Attempting to set identical bottom ==
 warnings.filterwarnings("ignore", message="The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.")
 warnings.filterwarnings("ignore")
 
+LINE_WIDTH = 2.5 # 1.5 is default
+DOT_SIZE = 80 # 20 is default
+TIME_MIN = pow(10, -5.2)
+TIME_MAX = pow(10, 0) # Can be None
+TIME_MIN_SOLCOST = pow(10, -2)
+
 def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nInst=100, beams=False):
     
     data = utils.read_data(resultsFolder, dataset, cost, algs, dup, 1, nInst)
@@ -83,6 +89,7 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
                 algDashes[key] = dash_list[0]
             else:
                 algColors[key] = cmap(algOffset + argvalOffset)
+                if argvalOffset == 3: argvalOffset = 0
                 algDashes[key] = dash_list[1 if argvalOffset == 0 else 0 if argvalOffset == 1 else argvalOffset]
                 argvalOffset += 1
         algOffset += 4
@@ -178,10 +185,10 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
                 color = algColors[key]
                 label = get_label(alg, argval, extra, dataset, cost)
             
-                l, = plt.plot(sorted(time_data[1:]+time_data[:-1]), algQualities[key][:-1], algDashes[key], label=label, zorder=count, alpha=0.75, color=color)
+                l, = plt.plot(sorted(time_data[1:]+time_data[:-1]), algQualities[key][:-1], algDashes[key], label=label, zorder=count, alpha=0.75, color=color, linewidth = LINE_WIDTH)
                 line_list.append(l)
                 if key in algDots:
-                    plt.scatter(algDots[key][0], algDots[key][1], color=color)
+                    plt.scatter(algDots[key][0], algDots[key][1], color=color, s = DOT_SIZE)
                 count += 1
 
         plt.xlabel("Time (seconds)", fontsize = 14)
@@ -190,7 +197,7 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
         if domain == "100pancake" and cost == "heavy":
             leg = plt.legend(handles=utils.sort_lines(line_list, sortvals))
         #leg.set_title(get_domain_label(dataset, cost), prop={"weight":"bold"})
-        #plt.xlim(0, time_max)
+        if TIME_MAX != None: plt.xlim(TIME_MIN, TIME_MAX)
         plt.xscale("log")
         #plt.yscale("log")
         if save:
@@ -220,7 +227,7 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
                 color = algColors[key]
                 label = get_label(alg, argval, extra, dataset, cost)
 
-                l, = plt.plot(sorted(time_data[1:]+time_data[:-1]), algCoverages[key][:-1], algDashes[key], label=label, zorder=count, alpha=0.75, color=color)
+                l, = plt.plot(sorted(time_data[1:]+time_data[:-1]), algCoverages[key][:-1], algDashes[key], label=label, zorder=count, alpha=0.75, color=color, linewidth = LINE_WIDTH)
                 line_list.append(l)
                 count += 1
     
@@ -229,7 +236,7 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
         #plt.title("Number of instances solved over time "+"("+dataset+", "+cost+")\n across "+str(nInst)+" instances", fontsize = 14)
         #leg = plt.legend(handles=utils.sort_lines(line_list, sortvals))
         #leg.set_title(get_domain_label(dataset, cost), prop={"weight":"bold"})
-        #plt.xlim(0, time_max)
+        if TIME_MAX != None: plt.xlim(TIME_MIN, TIME_MAX)
         plt.xscale("log")
         #plt.yscale("log")
         if save:
@@ -371,7 +378,7 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
                 color = algColors[key]
                 label = get_label(alg, argval, extra, dataset, cost)
 
-                l, = plt.plot(sorted(temp_time_data+temp_time_data[:-1]), algCosts[key][:-1], algDashes[key], label=label, zorder=count, alpha=0.75, color=color)
+                l, = plt.plot(sorted(temp_time_data+temp_time_data[:-1]), algCosts[key][:-1], algDashes[key], label=label, zorder=count, alpha=0.75, color=color, linewidth = LINE_WIDTH)
                 line_list.append(l)
                 count += 1
     
@@ -398,7 +405,7 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
         #plt.title("Avg sol cost for insts solved by all "+"("+dataset+", "+cost+")\n across "+str(nInst)+" instances", fontsize = 14)
         leg = plt.legend()#handles=utils.sort_lines(line_list, sortvals))
         leg.set_title(get_domain_label(dataset, cost), prop={"weight":"bold"})
-        #plt.xlim(0, time_max)
+        plt.xlim(left = TIME_MIN_SOLCOST)
         plt.xscale("log")
         if save:
             plt.savefig(path+"/anytime-solved_cost-"+cost+".pdf", bbox_inches='tight',pad_inches = 0.01)
@@ -485,10 +492,10 @@ def makeSection(resultsFolder, doc, domain, dataset, cost, algs, dup, save, nIns
                 color = algColors[key]
                 label = get_label(alg, argval, extra, dataset, cost)
             
-                l, = plt.plot(sorted(time_data[1:]+time_data[:-1]), algQualities[key][:-1], algDashes[key], label=label, zorder=count, alpha=0.75, color=color)
+                l, = plt.plot(sorted(time_data[1:]+time_data[:-1]), algQualities[key][:-1], algDashes[key], label=label, zorder=count, alpha=0.75, color=color, linewidth = LINE_WIDTH)
                 line_list.append(l)
                 if key in algDots:
-                    plt.scatter(algDots[key][0], algDots[key][1], color=color)
+                    plt.scatter(algDots[key][0], algDots[key][1], color=color, s = DOT_SIZE)
                 count += 1
     
         plt.xlabel("Time (seconds)", fontsize = 14)
@@ -637,16 +644,16 @@ if __name__ == "__main__":
 
     domains = [
         #("tiles", "tiles"),
-        ("gridscenario", "64room"),
-        ("gridscenario", "orz100d"),
-        #("vacuum", "vacuum"),
+        #("gridscenario", "64room"),
+        #("gridscenario", "orz100d"),
+        ("vacuum", "vacuum"),
         #("pancake", "pancake")
     ]
     costs_dict = {
-        "tiles": ["unit", "inv", "heavy"],
+        "tiles": ["unit"],
         "gridscenario": ["unit"],
-        "vacuum": ["unit", "heavy"],
-        "pancake": ["unit", "heavy"]
+        "vacuum": ["unit"],
+        "pancake": ["unit"]
     }
 
     #slopes = ["500"]
@@ -654,7 +661,7 @@ if __name__ == "__main__":
     widths = [30, 100, 300, 1000]
     thresholds = [2, 4, 6]
     aspects = [1, 500]
-    ks = [2, 20, 200, 2000]
+    ks = [2]#, 20, 200, 2000]
     algs = [
         #("bead", "width", widths, True),
         #("thresholdbead", "threshold", thresholds, True),

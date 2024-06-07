@@ -4,7 +4,7 @@
 #include "../search/search.hpp"                                                 
 #include "../utils/pool.hpp"
 #include <vector>
-#include <limits>
+#include <climits>
 #include <iostream>
 #include <math.h>
                                                                                 

@@ -209,64 +209,86 @@ def read_data(results_dir, domain, cst, algs, dup, startInst=1, nInst=100, first
                     else:
                         init_h_line = [x for x in lines if "initial heuristic" in x][0]
                         init_h = float(init_h_line.split("\"")[3])
+                runLines = [x for x in lines if "altrow" in x and "run" in x]
                 if len([x for x in lines if "total nodes expanded" in x]) == 0:
                     print("no expansion line in file", filename)
-                expanded_line = [x for x in lines if "total nodes expanded" in x][0]
-                expanded = float(expanded_line.split("\"")[3])
-                    
-                generated_line = [x for x in lines if "total nodes generated" in x][0]
-                generated = float(generated_line.split("\"")[3])
-                time_line = [x for x in lines if "total raw cpu time" in x][0]
-                cpu_time = float(time_line.split("\"")[3])
-                wall_time_line = [x for x in lines if "total wall time" in x][0]
-                wall_time = float(wall_time_line.split("\"")[3])
-                try:
-                    sol_lines = [x for x in lines if "incumbent" in x]
-                    incumbent_sols = get_incumbent_sols(sol_lines)
-                    num_sol = len(sol_lines)
-                    cost_lines = [x for x in lines if "final sol cost" in x]
-                    if firstSol and len(incumbent_sols) > 0: # first solution
-                        cost = incumbent_sols[0].cost
-                        wall_time = incumbent_sols[0].wall_time
-                    elif len(cost_lines) > 0:
-                        cost_line = cost_lines[0]
-                        cost = float(cost_line.split("\"")[3])
-                    elif len(incumbent_sols) > 0:
-                        cost = incumbent_sols[-1].cost
-                    else:
-                        cost = -1
-
-                    length_lines = [x for x in lines if "final sol length" in x]
-                    length_line = length_lines[0]
-                    length = float(length_line.split("\"")[3])
+                #elif len(runLines) == 0:
+                #    print("no run line in file", filename)
+                elif len(runLines) > 0:
+                    # case for orz100d and 64room
+                    line = runLines[0]
+                    l = line.split("\t")
+                    expanded = float(l[10])
+                    generated = float(l[11])
+                    cost = float(l[12])
                     if cost <= 0:
-                        mem_line = [x for x in lines if "out of memory" in x]
-                        if len(mem_line) > 0 and "true" in mem_line[0]:
-                            data.mem_fails[key] += 1
-                        else:
-                            data.deadend_fails[key] += 1
-                except Exception as e:
-                    print("exception for", alg, file)
-                    print(e)
-                    #print(traceback.format_exc())
-                    cpu_time = 60*5
-                    wall_time = 60*5
-                    cost = 0
-                    length = 0
-                    num_sol = 0
-                    fail = True
+                        cost = 0
+                        length = 0
+                        num_sol = 0
+                        fail = True
+                    else:
+                        length = float(l[13])
+                        num_sol = 1
+                    wall_time = float(l[14])
+                    cpu_time = float(l[15].rstrip())
                     incumbent_sols = []
-                if cost <= 0:
-                    cost = 0
-                    length = 0
-                    num_sol = 0
-                    fail = True
+                else:
+                    expanded_line = [x for x in lines if "total nodes expanded" in x][0]
+                    expanded = float(expanded_line.split("\"")[3])
+                        
+                    generated_line = [x for x in lines if "total nodes generated" in x][0]
+                    generated = float(generated_line.split("\"")[3])
+                    time_line = [x for x in lines if "total raw cpu time" in x][0]
+                    cpu_time = float(time_line.split("\"")[3])
+                    wall_time_line = [x for x in lines if "total wall time" in x][0]
+                    wall_time = float(wall_time_line.split("\"")[3])
+                    try:
+                        sol_lines = [x for x in lines if "incumbent" in x]
+                        incumbent_sols = get_incumbent_sols(sol_lines)
+                        num_sol = len(sol_lines)
+                        cost_lines = [x for x in lines if "final sol cost" in x]
+                        if firstSol and len(incumbent_sols) > 0: # first solution
+                            cost = incumbent_sols[0].cost
+                            wall_time = incumbent_sols[0].wall_time
+                        elif len(cost_lines) > 0:
+                            cost_line = cost_lines[0]
+                            cost = float(cost_line.split("\"")[3])
+                        elif len(incumbent_sols) > 0:
+                            cost = incumbent_sols[-1].cost
+                        else:
+                            cost = -1
+
+                        length_lines = [x for x in lines if "final sol length" in x]
+                        length_line = length_lines[0]
+                        length = float(length_line.split("\"")[3])
+                        if cost <= 0:
+                            mem_line = [x for x in lines if "out of memory" in x]
+                            if len(mem_line) > 0 and "true" in mem_line[0]:
+                                data.mem_fails[key] += 1
+                            else:
+                                data.deadend_fails[key] += 1
+                    except Exception as e:
+                        print("exception for", alg, file)
+                        print(e)
+                        #print(traceback.format_exc())
+                        cpu_time = 60*5
+                        wall_time = 60*5
+                        cost = 0
+                        length = 0
+                        num_sol = 0
+                        fail = True
+                        incumbent_sols = []
+                    if cost <= 0:
+                        cost = 0
+                        length = 0
+                        num_sol = 0
+                        fail = True
 
                 if len(incumbent_sols) == 0:
                     incumbent_sols = [Solution(cost=cost,
-                                               wall_time=wall_time,
-                                               expanded=expanded,
-                                               generated=generated)]
+                                            wall_time=wall_time,
+                                            expanded=expanded,
+                                            generated=generated)]
                 data.costs[key].append(cost)
                 data.sol_lengths[key].append(length)
                 data.cpu_times[key].append(cpu_time)

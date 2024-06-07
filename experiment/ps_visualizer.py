@@ -7,7 +7,7 @@ import tkinter as tk
 import matplotlib.pyplot as plt
 
 SQUARE_SIZE = 1
-CIRCLE_RADIUS = 5
+CIRCLE_RADIUS = 2
 
 class Node:
   def __init__(self, depth, expnum, goal):
@@ -56,7 +56,7 @@ def main():
         print("Usage: python3 visualizer.py [dumpFile]")
         return
     dumpFile = sys.argv[1]
-    fileName = dumpFile.split("/")[-1].split(".")[0]
+    fileName = dumpFile.split(".")[0]
     outputFile = f"{fileName}.ps"
     data = pd.read_csv(dumpFile)
     maxDepth = np.max(data.depth) + 1
