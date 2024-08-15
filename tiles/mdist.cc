@@ -29,21 +29,22 @@ TilesMdist::State TilesMdist::initialstate() {
 }
 
 void TilesMdist::initcosts(const char *cost) {
-  minCost = std::numeric_limits<float>::max();
+  double mult = 10000.0;
+  minCost = std::numeric_limits<long int>::max();
   costs[0] = 0;
   for(unsigned int t = 1; t < Ntiles; t++) {
 	if(strcmp(cost, "heavy") == 0)
-	  costs[t] = t;
+	  costs[t] = (long int) (t * mult);
 	else if(strcmp(cost, "sqrt") == 0)
-	  costs[t] = sqrt(t);
+	  costs[t] = (long int) (sqrt(t) * mult);
 	else if(strcmp(cost, "inverse") == 0)
-	  costs[t] = 1.0/t;
+	  costs[t] = (long int) (1.0/t * mult);
 	else if(strcmp(cost, "reverse") == 0)
-	  costs[t] = Ntiles-t;
+	  costs[t] = (long int) ((Ntiles-t) * mult);
 	else if(strcmp(cost, "revinv") == 0)
-	  costs[t] = 1.0/(Ntiles-t);
+	  costs[t] = (long int) (1.0/(Ntiles-t) * mult);
 	else
-	  costs[t] = 1;
+	  costs[t] = (long int) (1 * mult);
 	if(costs[t] < minCost)
 	  minCost = costs[t];
   }

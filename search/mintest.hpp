@@ -95,7 +95,7 @@ template <class D> struct MinTest : public SearchAlgorithm<D> {
 			// if h is lower than max seen so far, increment local min
 			if(n->h < n->hwm) {
 			  if(n->mindepth == 1) {
-				if(minsize > 0) {
+				if(minsize > 30) {
 				  // record and report current minimum size
 				  fprintf(stderr, "size: %d hwm: %f expanded: %d\n", minsize, (double)min_hwm, min_exp);
 				  mincount++;
@@ -103,9 +103,8 @@ template <class D> struct MinTest : public SearchAlgorithm<D> {
 				  if(minsize > minmax) {
 					minmax = minsize;
 				  }
-				  // reset min size
-				  minsize = 0;
 				}
+				minsize = 0;
 				min_hwm = hh;
 				min_exp = SearchAlgorithm<D>::res.expd;
 			  }
@@ -126,7 +125,7 @@ template <class D> struct MinTest : public SearchAlgorithm<D> {
 			expand(d, n, state);
 		}
 
-		if(minsize > 0) {
+		if(minsize > 30) {
 		  // record current minimum size else
 		  fprintf(stderr, "size: %d hwm: %f expanded: %d\n", minsize, (double)min_hwm, min_exp);
 		  mincount++;
